@@ -7,6 +7,7 @@ from pipes import quote
 from multiprocessing import Pool, current_process
 
 import mmcv
+import pdb
 
 
 def dump_frames(vid_item):
@@ -20,8 +21,9 @@ def dump_frames(vid_item):
     vr = mmcv.VideoReader(full_path)
     for i in range(len(vr)):
         if vr[i] is not None:
+            img = mmcv.imresize(vr[i], (640, 360))
             mmcv.imwrite(
-                vr[i], '{}/img_{:05d}.jpg'.format(out_full_path, i + 1))
+                img, '{}/img_{:05d}.jpg'.format(out_full_path, i + 1))
         else:
             print('[Warning] length inconsistent!'
                   'Early stop with {} out of {} frames'.format(i + 1, len(vr)))
@@ -134,11 +136,17 @@ if __name__ == '__main__':
         done_fullpath_list = glob.glob(args.out_dir + '/*/*')
     elif args.level == 1:
         fullpath_list = glob.glob(args.src_dir + '/*.' + args.ext)
-        done_fullpath_list = glob.glob(args.out_dir + '/*')
+        #done_fullpath_list = glob.glob(args.out_dir + '/*')
+        done_fullpath_list = os.listdir(args.out_dir)
     print('Total number of videos found: ', len(fullpath_list))
     if args.resume:
-        fullpath_list = set(fullpath_list).difference(set(done_fullpath_list))
-        fullpath_list = list(fullpath_list)
+        fullpath_list_todo = []
+        for p in fullpath_list:
+            if os.path.splitext(os.path.basename(p))[0] not in done_fullpath_list:
+                fullpath_list_todo.append(p)
+        fullpath_list = fullpath_list_todo
+        #fullpath_list = set(fullpath_list).difference(set(done_fullpath_list))
+        #fullpath_list = list(fullpath_list)
         print('Resuming. number of videos to be done: ', len(fullpath_list))
 
     if args.level == 2:

@@ -45,4 +45,6 @@ class SimpleConsensus(nn.Module):
         pass
 
     def forward(self, input):
-        return _SimpleConsensus(self.consensus_type, self.dim)(input)
+        output = input.mean(dim=self.dim, keepdim=True)
+
+        return output #_SimpleConsensus(self.consensus_type, self.dim)(input)

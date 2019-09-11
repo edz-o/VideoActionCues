@@ -82,7 +82,7 @@ def _dist_train(model, dataset, cfg, validate=False):
     if validate:
         if cfg.data.val.type in ['RawFramesDataset', 'VideoDataset']:
             runner.register_hook(
-                DistEvalTopKAccuracyHook(cfg.data.val, k=(1, 5)))
+                DistEvalTopKAccuracyHook(cfg.data.val, k=(1, 5), interval=1))
         if cfg.data.val.type == 'AVADataset':
             runner.register_hook(AVADistEvalmAPHook(cfg.data.val))
     # if validate:

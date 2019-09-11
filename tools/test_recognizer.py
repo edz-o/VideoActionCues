@@ -11,6 +11,8 @@ from mmaction.models import build_recognizer, recognizers
 from mmaction.core.evaluation.accuracy import (softmax, top_k_accuracy,
                                                mean_class_accuracy)
 
+import pickle
+import pdb
 
 def single_test(model, data_loader):
     model.eval()
@@ -111,6 +113,14 @@ def main():
         print("Averaging score over {} clips without softmax (ie, raw)".format(
             outputs[0].shape[0]))
         results = [res.mean(axis=0) for res in outputs]
+
+    import datetime
+
+    currentDT = datetime.datetime.now()
+
+
+    with open('/data/yzhang/mmaction/test_result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S"), 'wb' ) as f:
+        pickle.dump([results, gt_labels], f)
     top1, top5 = top_k_accuracy(results, gt_labels, k=(1, 5))
     mean_acc = mean_class_accuracy(results, gt_labels)
     print("Mean Class Accuracy = {:.02f}".format(mean_acc * 100))

@@ -10,6 +10,8 @@ from mmcv.runner import obj_from_dict
 from .. import datasets
 import csv
 import random
+import json
+import pdb
 
 
 def to_tensor(data):
@@ -315,7 +317,7 @@ def parse_kinetics_splits(level):
                 assert level == 1
             label = class_mapping[convert_label(x[0])]
             return vid, label
-        
+
     csv_reader = csv.reader(
         open('data/kinetics400/annotations/kinetics_train.csv'))
     next(csv_reader)
@@ -330,3 +332,27 @@ def parse_kinetics_splits(level):
     test_list = [list2rec(x, test=True) for x in csv_reader]
 
     return ((train_list, val_list, test_list), )
+
+def parse_nturgbd_splits(level):
+    def convert_label(s):
+        return s.replace('"', '').replace(' ', '_')
+    train_list = json.load(open('data/nturgbd/NTU_RGBD_all.json'))
+
+    kinetics_mapping = json.load(open('data/kinetics400/kinetics_class_mapping.json'))
+    csv_reader = csv.reader(open('data/nturgbd/kinetics_ntu_mapping.csv'))
+    next(csv_reader)
+    ntu2kinetics = {}
+    for kinetics_name, ntu_name, label in csv_reader:
+        kinetics_name = convert_label(kinetics_name)
+        assert kinetics_name in kinetics_mapping
+        kinetics_label = kinetics_mapping[kinetics_name]
+        ntu2kinetics[ int(label) ] =  kinetics_label
+
+    train_list_shared = [ (vid, ntu2kinetics[label]) for vid, label in train_list if label in ntu2kinetics]
+    return ((train_list_shared, train_list_shared, train_list_shared), )
+
+
+
+
+
+

@@ -90,7 +90,7 @@ class DistEvalTopKAccuracyHook(DistEvalHook):
 
     def __init__(self,
                  dataset,
-                 k=(1,)):
+                 k=(1,), **kwargs):
         super(DistEvalTopKAccuracyHook, self).__init__(dataset)
         self.k = k
 
