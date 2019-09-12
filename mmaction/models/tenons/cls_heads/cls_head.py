@@ -15,7 +15,7 @@ class ClsHead(nn.Module):
                  in_channels=2048,
                  num_classes=101,
 		 init_std=0.01):
-    
+
         super(ClsHead, self).__init__()
 
         self.with_avg_pool = with_avg_pool
@@ -42,7 +42,7 @@ class ClsHead(nn.Module):
         if x.ndimension() == 4:
             x = x.unsqueeze(2)
         assert x.shape[1] == self.in_channels
-        assert x.shape[2] == self.temporal_feature_size
+        assert x.shape[2] == self.temporal_feature_size, '{}'.format(x.shape[2])
         assert x.shape[3] == self.spatial_feature_size
         assert x.shape[4] == self.spatial_feature_size
         if self.with_avg_pool:

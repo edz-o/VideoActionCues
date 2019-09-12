@@ -2,25 +2,15 @@
 model = dict(
     type='TSN3D',
     backbone=dict(
-        type='ResNet_I3D',
-        pretrained='modelzoo://resnet50',
-        depth=50,
-        num_stages=4,
-        out_indices=[3],
-        frozen_stages=-1,
-        inflate_freq=((1,1,1), (1,0,1,0), (1,0,1,0,1,0), (0,1,0)),
-        inflate_style='3x1x1',
-        conv1_kernel_t=5,
-        conv1_stride_t=2,
-        pool1_kernel_t=1,
-        pool1_stride_t=2,
+        type='I3D',
+        pretrained=None,
         bn_eval=False,
         partial_bn=False,
-        style='pytorch'),
+        ),
     spatial_temporal_module=dict(
         type='SimpleSpatialTemporalModule',
         spatial_type='avg',
-        temporal_size=4,
+        temporal_size=8,
         spatial_size=7),
     segmental_consensus=dict(
         type='SimpleConsensus',
@@ -31,7 +21,7 @@ model = dict(
         temporal_feature_size=1,
         spatial_feature_size=1,
         dropout_ratio=0.5,
-        in_channels=2048,
+        in_channels=1024,
         num_classes=400))
 train_cfg = None
 test_cfg = None
@@ -40,7 +30,7 @@ dataset_type = 'RawFramesDataset'
 data_root = 'data/kinetics400/rawframes_train/'
 data_root_val = 'data/kinetics400/rawframes_val/'
 img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+    mean=[127.5, 127.5, 127.5], std=[127.5, 127.5, 127.5], to_rgb=True)
 data = dict(
     videos_per_gpu=8,
     workers_per_gpu=4,
@@ -134,7 +124,7 @@ log_config = dict(
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_kinetics_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_imagenet'
+work_dir = './work_dirs/i3d_kinetics400_3d_rgb_inception'
 load_from = None
 resume_from = None
 
