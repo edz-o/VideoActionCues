@@ -108,3 +108,7 @@ mmaction/version.py
 data
 .vscode
 .idea
+
+# PyTorch Models and Logs
+*.pth
+*.pkl

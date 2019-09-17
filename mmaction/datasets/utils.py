@@ -336,7 +336,7 @@ def parse_kinetics_splits(level):
 def parse_nturgbd_splits(level):
     def convert_label(s):
         return s.replace('"', '').replace(' ', '_')
-    train_list = json.load(open('data/nturgbd/NTU_RGBD_all.json'))
+    video_list = json.load(open('data/nturgbd/NTU_RGBD_all.json'))
 
     kinetics_mapping = json.load(open('data/kinetics400/kinetics_class_mapping.json'))
     csv_reader = csv.reader(open('data/nturgbd/kinetics_ntu_mapping.csv'))
@@ -348,8 +348,33 @@ def parse_nturgbd_splits(level):
         kinetics_label = kinetics_mapping[kinetics_name]
         ntu2kinetics[ int(label) ] =  kinetics_label
 
-    train_list_shared = [ (vid, ntu2kinetics[label]) for vid, label in train_list if label in ntu2kinetics]
-    return ((train_list_shared, train_list_shared, train_list_shared), )
+    video_list_shared = [ (vid, ntu2kinetics[label]) for vid, label in video_list if label in ntu2kinetics]
+
+    # cross subject evaluation
+    train_ids = [1, 2, 4, 5, 8, 9, 13, 14, 15, 16, 17, 18, 19, 25, 27, 28, 31, 34, 35,
+            38, 45, 46, 47, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 70, 74, 78,
+            80, 81, 82, 83, 84, 85, 86, 89, 91, 92, 93, 94, 95, 97, 98, 100, 103]
+    train_list_shared_cross_subject = []
+    val_list_shared_cross_subject = []
+    for vid, label in video_list_shared:
+        if int(vid[9:12]) in train_ids:
+            train_list_shared_cross_subject.append((vid, label))
+        else:
+            val_list_shared_cross_subject.append((vid, label))
+
+    # cross setup evaluation
+    # Even IDs for training
+
+    train_list_shared_cross_setup = []
+    val_list_shared_cross_setup = []
+    for vid, label in video_list_shared:
+        if int(vid[1:4]) % 2 == 0:
+            train_list_shared_cross_setup.append((vid, label))
+        else:
+            val_list_shared_cross_setup.append((vid, label))
+
+    return ((train_list_shared_cross_subject, val_list_shared_cross_subject, val_list_shared_cross_subject),
+            (train_list_shared_cross_setup, val_list_shared_cross_setup, val_list_shared_cross_setup), )
 
 
 
