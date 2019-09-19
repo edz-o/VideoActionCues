@@ -298,8 +298,7 @@ def parse_kinetics_splits(level):
     next(csv_reader)
 
     def convert_label(s):
-        return s.replace('"', '').replace(' ', '_')
-
+        return s.replace('"', '').replace(' ', '_').replace('(', '-').replace(')', '-')
     labels_sorted = sorted(
         set([convert_label(row[0]) for row in csv_reader]))
     class_mapping = {label: i for i, label in enumerate(labels_sorted)}
@@ -335,7 +334,7 @@ def parse_kinetics_splits(level):
 
 def parse_nturgbd_splits(level):
     def convert_label(s):
-        return s.replace('"', '').replace(' ', '_')
+        return s.replace('"', '').replace(' ', '_').replace('(', '-').replace(')', '-')
     video_list = json.load(open('data/nturgbd/NTU_RGBD_all.json'))
 
     kinetics_mapping = json.load(open('data/kinetics400/kinetics_class_mapping.json'))
