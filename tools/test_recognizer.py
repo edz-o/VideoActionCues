@@ -73,6 +73,7 @@ def main():
         model = build_recognizer(
             cfg.model, train_cfg=None, test_cfg=cfg.test_cfg)
         load_checkpoint(model, args.checkpoint, strict=True)
+        pdb.set_trace()
         model = MMDataParallel(model, device_ids=[0])
 
         data_loader = build_dataloader(
@@ -95,6 +96,7 @@ def main():
             _data_func,
             range(args.gpus),
             workers_per_gpu=args.proc_per_gpu)
+
 
     if args.out:
         print('writing results to {}'.format(args.out))

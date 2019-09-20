@@ -4,7 +4,7 @@ from torch import nn
 from .registry import (BACKBONES, FLOWNETS, SPATIAL_TEMPORAL_MODULES,
                        SEGMENTAL_CONSENSUSES, HEADS,
                        RECOGNIZERS, DETECTORS, LOCALIZERS, ARCHITECTURES,
-                       NECKS, ROI_EXTRACTORS)
+                       NECKS, ROI_EXTRACTORS, DISCRIMINATORS)
 
 
 def _build_module(cfg, registry, default_args):
@@ -78,3 +78,6 @@ def build_neck(cfg):
 
 def build_roi_extractor(cfg):
     return build(cfg, ROI_EXTRACTORS)
+
+def build_discriminator(cfg):
+    return build(cfg, DISCRIMINATORS)
