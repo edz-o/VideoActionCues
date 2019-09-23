@@ -1,6 +1,6 @@
 # model settings
 model = dict(
-    type='TSN3D',
+    type='TSN3D_adv',
     backbone=dict(
         type='ResNet_I3D',
         pretrained='modelzoo://resnet50',
@@ -35,13 +35,16 @@ model = dict(
         num_classes=400),
     discriminator=dict(
         type='NLayerDiscriminator',
-        input_nc=2048
+        input_nc=2048,
+        lambda_adv_1=0.001
         ))
 train_cfg = None
 test_cfg = None
 # dataset settings
 dataset_type = 'RawFramesDatasetAdv'
-data_root = 'data/nturgbd/rawframes_train/'
+dataset_type_eval = 'RawFramesDataset'
+data_root0 = 'data/nturgbd/rawframes_train/'
+data_root1 = 'data/kinetics400/rawframes_train/'
 data_root_val = 'data/nturgbd/rawframes_val/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
@@ -51,8 +54,9 @@ data = dict(
     train=dict(
         type=dataset_type,
         ann_file0='data/nturgbd/nturgbd_train_split_cross_subject_rawframes.txt',
-        ann_file1='data/nturgbd/nturgbd_train_split_cross_subject_rawframes.txt',
-        img_prefix=data_root,
+        ann_file1='data/kinetics400/kinetics400_train_list_rawframes_ntu.txt',
+        img_prefix0=data_root0,
+        img_prefix1=data_root1,
         img_norm_cfg=img_norm_cfg,
         input_format="NCTHW",
         num_segments=1,
@@ -61,7 +65,7 @@ data = dict(
         random_shift=True,
         modality='RGB',
         image_tmpl0='img_{:05d}.jpg',
-        image_tmpl1='img_{:05d}.jpg',
+        image_tmpl1='image_{:05d}.jpg',
         img_scale=256,
         input_size=224,
         div_255=False,
@@ -75,8 +79,8 @@ data = dict(
         max_distort=0,
         test_mode=False),
     val=dict(
-        type=dataset_type,
-        ann_file='data/nturgbd/nturgbd_val_split_cross_subject_rawframes.txt',
+        type=dataset_type_eval,
+        ann_file='data/kinetics400/kinetics400_val_list_rawframes_ntu.txt',
         img_prefix=data_root_val,
         img_norm_cfg=img_norm_cfg,
         input_format="NCTHW",
@@ -97,8 +101,8 @@ data = dict(
         multiscale_crop=False,
         test_mode=False),
     test=dict(
-        type=dataset_type,
-        ann_file='data/nturgbd/nturgbd_val_split_cross_subject_rawframes.txt',
+        type=dataset_type_eval,
+        ann_file='data/kinetics400/kinetics400_train_list_rawframes_ntu.txt',
         img_prefix=data_root_val,
         img_norm_cfg=img_norm_cfg,
         input_format="NCTHW",
@@ -119,12 +123,17 @@ data = dict(
         multiscale_crop=False,
         test_mode=True))
 # optimizer
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizers = [  dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001),
+                dict(type='Adam', lr=0.0001, betas=(0.9, 0.99)),
+        ]
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 # learning policy
-lr_config = dict(
-    policy='step',
-    step=[40, 80])
+lr_configs = [
+        dict(policy='step',
+             step=[40, 80]),
+        dict(policy='step',
+             step=[40, 80]),
+    ]
 checkpoint_config = dict(interval=1)
 # workflow = [('train', 5), ('val', 1)]
 workflow = [('train', 1)]
@@ -133,14 +142,14 @@ log_config = dict(
     interval=20,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
+        dict(type='TensorboardLoggerHook')
     ])
 # yapf:enable
 # runtime settings
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_kinetics_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_imagenet'
+work_dir = './work_dirs/i3d_SimNTU_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_adv'
 load_from = None
 resume_from = None
 

@@ -4,7 +4,7 @@ import argparse
 from mmcv import Config
 
 from mmaction import __version__
-from mmaction.datasets import get_trimmed_dataset
+from mmaction.datasets import get_trimmed_adv_dataset
 from mmaction.apis import (train_network_adv, init_dist, get_root_logger,
                            set_random_seed)
 from mmaction.models import build_recognizer
@@ -73,10 +73,12 @@ def main():
         logger.info('Set random seed to {}'.format(args.seed))
         set_random_seed(args.seed)
 
+    cfg.model.gpus = cfg.gpus
+    cfg.model.dist = distributed
     model = build_recognizer(
         cfg.model, train_cfg=cfg.train_cfg, test_cfg=cfg.test_cfg)
 
-    train_dataset = get_trimmed_dataset(cfg.data.train)
+    train_dataset = get_trimmed_adv_dataset(cfg.data.train)
     train_network_adv(
         model,
         train_dataset,

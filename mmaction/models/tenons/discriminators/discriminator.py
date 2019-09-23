@@ -50,9 +50,9 @@ class FCDiscriminator(nn.Module):
 
 @DISCRIMINATORS.register_module
 class NLayerDiscriminator(nn.Module):
-    def __init__(self, input_nc, ndf=64, n_layers=3, norm_layer=nn.BatchNorm3d, use_sigmoid=False):
+    def __init__(self, input_nc, ndf=64, n_layers=3, lambda_adv_1=0.001, norm_layer=nn.BatchNorm3d, use_sigmoid=False):
         super(NLayerDiscriminator, self).__init__()
-        self.loss = None
+        self.lambda_adv_1 = lambda_adv_1
         if type(norm_layer) == functools.partial:
             use_bias = norm_layer.func == nn.InstanceNorm3d
         else:
@@ -99,12 +99,15 @@ class NLayerDiscriminator(nn.Module):
         return x
 
     def loss(self, x, lbl):
-        self.loss = self.bce_loss(x, torch.FloatTensor(x.data.size()).fill_(lbl).cuda())
-        return torch.unsqueeze(self.loss, 0)
+        loss = self.bce_loss(x, torch.FloatTensor(x.data.size()).fill_(lbl).cuda())
+        return torch.unsqueeze(loss, 0)
 
     def freeze(self, freeze=True):
-        for m in self.parameters():
-            m.requires_grad = not freeze
+        for m in self.modules():
+            #print(type(m))
+            if isinstance(m, nn.Conv3d) or isinstance(m, nn.BatchNorm3d):
+                for p in m.parameters():
+                    p.requires_grad = not freeze
 
 
 @DISCRIMINATORS.register_module

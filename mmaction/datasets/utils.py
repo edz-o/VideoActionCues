@@ -104,6 +104,12 @@ def get_trimmed_dataset(data_cfg):
 
     return dset
 
+def get_trimmed_adv_dataset(data_cfg):
+
+    data_info = copy.deepcopy(data_cfg)
+    dset = obj_from_dict(data_info, datasets)
+    return dset
+
 
 def random_scale(img_scales, mode='range'):
     """Randomly select a scale from a list of scales or scale ranges.

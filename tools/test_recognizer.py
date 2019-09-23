@@ -73,7 +73,6 @@ def main():
         model = build_recognizer(
             cfg.model, train_cfg=None, test_cfg=cfg.test_cfg)
         load_checkpoint(model, args.checkpoint, strict=True)
-        pdb.set_trace()
         model = MMDataParallel(model, device_ids=[0])
 
         data_loader = build_dataloader(

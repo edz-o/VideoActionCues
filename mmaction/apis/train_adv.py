@@ -34,7 +34,7 @@ def parse_losses(losses):
 
 
 def batch_processor(model, data, train_mode):
-    losses = model(**data)
+    losses = model.forward_train(**data)
     loss, log_vars = parse_losses(losses)
 
     outputs = dict(
@@ -69,14 +69,15 @@ def _dist_train(model, dataset, cfg, validate=False):
             cfg.data.workers_per_gpu,
             dist=True)
     ]
+
     # put model on gpus
-    model = MMDistributedDataParallel(model.cuda())
+    #model = MMDistributedDataParallel(model.cuda())
     # build runner
-    runner = AdvRunner(model, batch_processor, cfg.optimizer, cfg.work_dir,
+    runner = AdvRunner(model, batch_processor, cfg.optimizers, cfg.work_dir,
                     cfg.log_level)
     # register hooks
     optimizer_config = DistOptimizerHook(**cfg.optimizer_config)
-    runner.register_training_hooks(cfg.lr_config, optimizer_config,
+    runner.register_training_hooks(cfg.lr_configs, optimizer_config,
                                    cfg.checkpoint_config, cfg.log_config)
     runner.register_hook(DistSamplerSeedHook())
     # register eval hooks
@@ -114,12 +115,17 @@ def _non_dist_train(model, dataset, cfg, validate=False):
             dist=False)
     ]
     # put model on gpus
-    model = MMDataParallel(model, device_ids=range(cfg.gpus)).cuda()
+    #model = MMDataParallel(model, device_ids=range(cfg.gpus)).cuda()
     # build runner
     runner = AdvRunner(model, batch_processor, cfg.optimizers, cfg.work_dir,
                     cfg.log_level)
-    runner.register_training_hooks(cfg.lr_config, cfg.optimizer_config,
+    runner.register_training_hooks(cfg.lr_configs, cfg.optimizer_config,
                                    cfg.checkpoint_config, cfg.log_config)
+
+    if validate:
+        if cfg.data.val.type in ['RawFramesDataset', 'VideoDataset']:
+            runner.register_hook(
+                EvalTopKAccuracyHook(cfg.data.val, k=(1, 5), interval=1))
 
     if cfg.resume_from:
         runner.resume(cfg.resume_from)
