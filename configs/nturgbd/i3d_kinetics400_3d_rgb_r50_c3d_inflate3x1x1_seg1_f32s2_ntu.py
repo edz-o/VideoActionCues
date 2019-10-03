@@ -46,7 +46,7 @@ data = dict(
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
-        ann_file='data/nturgbd/nturgbd_train_split_cross_subject_rawframes.txt',
+        ann_file='data/nturgbd/nturgbd_train_split_cross_setup_rawframes.txt',
         img_prefix=data_root,
         img_norm_cfg=img_norm_cfg,
         input_format="NCTHW",
@@ -127,14 +127,14 @@ log_config = dict(
     interval=20,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
+        dict(type='TensorboardLoggerHook')
     ])
 # yapf:enable
 # runtime settings
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_kinetics_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_imagenet'
+work_dir = './work_dirs/i3d_kinetics_r50_ntu_7class_cross_setup'
 load_from = None
 resume_from = None
 
