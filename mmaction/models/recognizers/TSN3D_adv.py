@@ -65,18 +65,20 @@ class TSN3D_adv(BaseRecognizer):
         # freeze discriminator
         self.discriminator.module.freeze(True)
         feat0, loss_cls0 = self.tsn3d_backbone(img_group0, gt_label0)
-        feat1, loss_cls1 = self.tsn3d_backbone(img_group1, gt_label1)
+        #feat1, loss_cls1 = self.tsn3d_backbone(img_group1, gt_label1)
+        feat1 = self.tsn3d_backbone(img_group1)
 
         losses = dict()
 
         loss_cls0['loss_cls'].mean().backward()
 
         losses['loss_cls0'] = loss_cls0['loss_cls'].mean()
-        losses['loss_cls1'] = loss_cls1['loss_cls'].mean()
+        #losses['loss_cls1'] = loss_cls1['loss_cls'].mean()
 
         outD_1 = self.discriminator(feat1)
         loss_D_1_fake = self.discriminator.module.loss(outD_1, 0)
-        loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake + loss_cls1['loss_cls']
+        #loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake + loss_cls1['loss_cls']
+        loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake
         loss_1.mean().backward()
         losses['loss_D_1_fake'] = loss_D_1_fake.mean()
 

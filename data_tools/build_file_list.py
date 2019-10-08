@@ -6,13 +6,14 @@ from mmaction.datasets.utils import (parse_directory,
                                      parse_ucf101_splits,
                                      parse_kinetics_splits,
                                      parse_nturgbd_splits,
+                                     parse_unreal_splits,
                                      build_split_list)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Build file list')
     parser.add_argument('dataset', type=str, choices=[
-                        'ucf101', 'kinetics400', 'nturgbd'])
+                        'ucf101', 'kinetics400', 'nturgbd', 'unreal'])
     parser.add_argument('frame_path', type=str,
                         help='root directory for the frames')
     parser.add_argument('--rgb_prefix', type=str, default='img_')
@@ -21,7 +22,7 @@ def parse_args():
     parser.add_argument('--num_split', type=int, default=3)
     parser.add_argument('--subset', type=str, default='train',
                         choices=['train', 'val', 'test'])
-    parser.add_argument('--level', type=int, default=2, choices=[1, 2])
+    parser.add_argument('--level', type=int, default=2)
     parser.add_argument('--format', type=str,
                         default='rawframes', choices=['rawframes', 'videos'])
     parser.add_argument('--out_list_path', type=str, default='data/')
@@ -36,6 +37,8 @@ def main():
 
     if args.level == 2:
         def key_func(x): return '/'.join(x.split('/')[-2:])
+    elif args.level == 3:
+        def key_func(x): return '/'.join(x.split('/')[-3:])
     else:
         def key_func(x): return x.split('/')[-1]
 
@@ -60,6 +63,8 @@ def main():
         split_tp = parse_kinetics_splits(args.level)
     elif args.dataset == 'nturgbd':
         split_tp = parse_nturgbd_splits(args.level)
+    elif args.dataset == 'unreal':
+        split_tp = parse_unreal_splits(args.level)
     assert len(split_tp) == args.num_split
 
     out_path = args.out_list_path + args.dataset
@@ -80,6 +85,16 @@ def main():
         with open(osp.join(out_path, filename), 'w') as f:
             f.writelines(lists[0][0])
         filename = '{}_val_split_cross_setup_{}.txt'.format(args.dataset,
+                                                      args.format)
+        with open(osp.join(out_path, filename), 'w') as f:
+            f.writelines(lists[0][1])
+    elif args.dataset == 'unreal':
+        lists = build_split_list(split_tp[0], frame_info, shuffle=args.shuffle)
+        filename = '{}_train_split_{}.txt'.format(args.dataset,
+                                                      args.format)
+        with open(osp.join(out_path, filename), 'w') as f:
+            f.writelines(lists[0][0])
+        filename = '{}_val_split_{}.txt'.format(args.dataset,
                                                       args.format)
         with open(osp.join(out_path, filename), 'w') as f:
             f.writelines(lists[0][1])

@@ -212,12 +212,18 @@ def parse_directory(path, key_func=lambda x: x[-11:],
     Parse directories holding extracted frames from standard benchmarks
     """
     print('parse frames under folder {}'.format(path))
+    frame_folders = glob.glob(os.path.join(path, *(['*']*level)))
+    '''
     if level == 1:
         frame_folders = glob.glob(os.path.join(path, '*'))
     elif level == 2:
         frame_folders = glob.glob(os.path.join(path, '*', '*'))
+    elif level == 3:
+        frame_folders = glob.glob(os.path.join(path, '*', '*', '*'))
     else:
         raise ValueError('level can be only 1 or 2')
+
+    '''
 
     def count_files(directory, prefix_list):
         lst = os.listdir(directory)
@@ -380,6 +386,18 @@ def parse_nturgbd_splits(level):
 
     return ((train_list_shared_cross_subject, val_list_shared_cross_subject, val_list_shared_cross_subject),
             (train_list_shared_cross_setup, val_list_shared_cross_setup, val_list_shared_cross_setup), )
+
+def parse_unreal_splits(level):
+    kinetics_mapping = json.load(open('data/kinetics400/kinetics_class_mapping.json'))
+    frame_folders = glob.glob(os.path.join('data/unreal/rawframes_train', *(['*']*level)))
+    video_list = []
+    for fd in frame_folders:
+        vid = '/'.join(fd.split('/')[3:])
+        act_cls = fd.split('/')[4]
+        label = kinetics_mapping[act_cls]
+        video_list.append((vid, label))
+    return ((video_list, video_list),)
+
 
 
 

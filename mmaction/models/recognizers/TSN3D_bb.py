@@ -89,15 +89,15 @@ class TSN3D_bb(nn.Module):
         x = self.backbone(img_group)
         return x
 
-    def forward(self, img_group_0, gt_label=None):
-        if gt_label is not None:
+    def forward(self, img_group_0, gt_label=None, test=False):
+        if test == False:
             return self.forward_train(img_group_0, gt_label)
         else:
             return self.forward_test(img_group_0)
 
     def forward_train(self,
                       img_group_0,
-                      gt_label,
+                      gt_label=None,
                       ):
         img_group = img_group_0
 
@@ -121,12 +121,15 @@ class TSN3D_bb(nn.Module):
 
         if self.with_cls_head:
             cls_score = self.cls_head(feat)
-            gt_label = gt_label.squeeze()
-            loss_cls = self.cls_head.loss(cls_score, gt_label)
+            if gt_label is not None:
+                gt_label = gt_label.squeeze()
+                loss_cls = self.cls_head.loss(cls_score, gt_label)
 
-            losses['loss_cls'] = loss_cls['loss_cls']
+                losses['loss_cls'] = loss_cls['loss_cls']
+                return feat, losses
 
-        return feat, losses
+        return feat
+        #return feat, losses
 
     def forward_test(self,
                      img_group_0,
