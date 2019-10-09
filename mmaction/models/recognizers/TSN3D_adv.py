@@ -20,7 +20,8 @@ class TSN3D_adv(BaseRecognizer):
                  train_cfg=None,
                  test_cfg=None,
                  gpus=None,
-                 dist=False):
+                 dist=False,
+                 train=True):
 
         super(TSN3D_adv, self).__init__()
         self.tsn3d_backbone = TSN3D_bb(backbone, flownet, spatial_temporal_module, segmental_consensus, cls_head, train_cfg, test_cfg)
@@ -31,12 +32,14 @@ class TSN3D_adv(BaseRecognizer):
         self.init_weights()
 
         # put model on gpus
-        if dist == True:
-            self.tsn3d_backbone = MMDistributedDataParallel(self.tsn3d_backbone.cuda())
-            self.discriminator = MMDistributedDataParallel(self.discriminator.cuda())
-        else:
-            self.tsn3d_backbone = MMDataParallel(self.tsn3d_backbone, device_ids=range(gpus)).cuda()
-            self.discriminator = MMDataParallel(self.discriminator, device_ids=range(gpus)).cuda()
+        #pdb.set_trace()
+        if train == True:
+            if dist == True:
+                self.tsn3d_backbone = MMDistributedDataParallel(self.tsn3d_backbone.cuda())
+                self.discriminator = MMDistributedDataParallel(self.discriminator.cuda())
+            else:
+                self.tsn3d_backbone = MMDataParallel(self.tsn3d_backbone, device_ids=range(gpus)).cuda()
+                self.discriminator = MMDataParallel(self.discriminator, device_ids=range(gpus)).cuda()
         '''
         assert gpus is not None
         self.backbone = MMDataParallel(self.backbone, device_ids=range(gpus))
@@ -107,4 +110,4 @@ class TSN3D_adv(BaseRecognizer):
         #assert num_modalities == 1
         img_group = kwargs['img_group_0']
 
-        return self.tsn3d_backbone(img_group)
+        return self.tsn3d_backbone(img_group, test=True)
