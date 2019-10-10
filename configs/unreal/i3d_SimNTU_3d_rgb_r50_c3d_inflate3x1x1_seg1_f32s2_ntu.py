@@ -46,6 +46,7 @@ dataset_type_eval = 'RawFramesDataset'
 data_root0 = 'data/unreal/rawframes_train/'
 data_root1 = 'data/nturgbd/rawframes_train/'
 data_root_val = 'data/nturgbd/rawframes_val/'
+data_root_test = 'data/kinetics400/rawframes_val/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
@@ -64,7 +65,7 @@ data = dict(
         new_step=2,
         random_shift=True,
         modality='RGB',
-        image_tmpl0='img_{:08d}.png',
+        image_tmpl0='img_{:08d}.jpg',
         image_tmpl1='img_{:05d}.jpg',
         img_scale=256,
         input_size=224,
@@ -102,8 +103,9 @@ data = dict(
         test_mode=False),
     test=dict(
         type=dataset_type_eval,
-        ann_file='data/nturgbd/nturgbd_val_split_cross_setup_rawframes.txt',
-        img_prefix=data_root_val,
+        #ann_file='data/nturgbd/nturgbd_val_split_cross_setup_rawframes.txt',
+        ann_file='data/kinetics400/kinetics400_val_list_rawframes_ntu.txt',
+        img_prefix=data_root_test,
         img_norm_cfg=img_norm_cfg,
         input_format="NCTHW",
         num_segments=3,
@@ -149,7 +151,7 @@ log_config = dict(
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_SimNTU_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_adv'
+work_dir = './work_dirs/i3d_SimNTU_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_adv_4680'
 load_from = None
 resume_from = None
 
