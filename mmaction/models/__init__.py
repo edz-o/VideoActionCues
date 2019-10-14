@@ -2,6 +2,7 @@ from .tenons.backbones import *
 from .tenons.spatial_temporal_modules import *
 from .tenons.segmental_consensuses import *
 from .tenons.cls_heads import *
+from .tenons.task_heads import *
 from .recognizers import *
 from .tenons.necks import *
 from .tenons.roi_extractors import *

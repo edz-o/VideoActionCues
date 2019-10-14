@@ -1,12 +1,12 @@
 # model settings
 model = dict(
-    type='TSN3D_adv',
+    type='TSN3D_adv_mt',
     backbone=dict(
         type='ResNet_I3D',
         pretrained='modelzoo://resnet50',
         depth=50,
         num_stages=4,
-        out_indices=[3],
+        out_indices=[0,1,2,3],
         frozen_stages=-1,
         inflate_freq=((1,1,1), (1,0,1,0), (1,0,1,0,1,0), (0,1,0)),
         inflate_style='3x1x1',
@@ -33,6 +33,11 @@ model = dict(
         dropout_ratio=0.5,
         in_channels=2048,
         num_classes=400),
+    seg_head=dict(
+        type='SegHead',
+        n_classes=2,
+        input_size=224
+        ),
     discriminator=dict(
         type='NLayerDiscriminator',
         input_nc=2048,
@@ -50,7 +55,7 @@ data_root_test = 'data/nturgbd/rawframes_val/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
-    videos_per_gpu=8,
+    videos_per_gpu=6,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
@@ -64,8 +69,8 @@ data = dict(
         new_length=32,
         new_step=2,
         random_shift=True,
-        modality='RGB',
-        image_tmpl0='img_{:08d}.jpg',
+        modality=['RGB','Seg'],
+        image_tmpl0=['img_{:08d}.jpg', 'seg_{:08d}.png'],
         image_tmpl1='img_{:05d}.jpg',
         img_scale=256,
         input_size=224,
@@ -151,7 +156,7 @@ log_config = dict(
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_SimNTU_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_adv_4680'
+work_dir = './work_dirs/i3d_SimNTU_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_adv_4680_mt'
 load_from = None
 resume_from = None
 

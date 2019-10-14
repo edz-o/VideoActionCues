@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.utils.checkpoint as cp
 
 from ....utils.misc import rgetattr, rhasattr
-from .resnet import ResNet 
+from .resnet import ResNet
 from mmcv.cnn import constant_init, kaiming_init
 from mmcv.runner import load_checkpoint
 
@@ -12,6 +12,7 @@ from ..utils.nonlocal_block import build_nonlocal_block
 from ..spatial_temporal_modules.non_local import NonLocalModule
 
 from ...registry import BACKBONES
+import pdb
 
 def conv3x3x3(in_planes, out_planes, spatial_stride=1, temporal_stride=1, dilation=1):
     "3x3x3 convolution with padding"
@@ -371,7 +372,6 @@ class ResNet_I3D(nn.Module):
         self.block, stage_blocks = self.arch_settings[depth]
         self.stage_blocks = stage_blocks[:num_stages]
         self.inplanes = 64
-
 
         self.conv1 = nn.Conv3d(
             3, 64, kernel_size=(conv1_kernel_t,7,7), stride=(conv1_stride_t,2,2), padding=((conv1_kernel_t-1)//2,3,3), bias=False)
