@@ -77,13 +77,14 @@ class TSN3D_adv_mt(BaseRecognizer):
 
         #loss_cls0['loss_cls'].mean().backward()
         #loss_cls0['loss_seg'].mean().backward()
-        loss_0 = loss_cls0['loss_cls'] + 0.1 * loss_cls0['loss_seg']
+        loss_0 = loss_cls0['loss_cls'] #+ 0.1 * loss_cls0['loss_seg']
         losses['loss_seg'] = loss_cls0['loss_seg']
         loss_0.mean().backward()
 
         losses['loss_cls0'] = loss_cls0['loss_cls'].mean()
         #losses['loss_cls1'] = loss_cls1['loss_cls'].mean()
 
+        #'''
         outD_1 = self.discriminator(feat1)
         loss_D_1_fake = self.discriminator.module.loss(outD_1, 0)
         #loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake + loss_cls1['loss_cls']
@@ -105,7 +106,7 @@ class TSN3D_adv_mt(BaseRecognizer):
 
         losses['loss_D_0_real'] = loss_D_0_real.mean()
         losses['loss_D_1_real'] = loss_D_1_real.mean()
-
+        #'''
 
         return losses
 
@@ -116,4 +117,4 @@ class TSN3D_adv_mt(BaseRecognizer):
         #assert num_modalities == 1
         img_group = kwargs['img_group_0']
 
-        return self.tsn3d_backbone(img_group, test=True)
+        return self.tsn3d_backbone(img_group, img_meta, test=True, output_seg=True)

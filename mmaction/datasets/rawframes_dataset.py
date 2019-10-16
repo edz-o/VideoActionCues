@@ -168,7 +168,8 @@ class RawFramesDataset(Dataset):
 
     def _load_image(self, directory, image_tmpl, modality, idx):
         if modality in ['RGB', 'RGBDiff']:
-            return [mmcv.imread(osp.join(directory, image_tmpl.format(idx)))]
+            #return [mmcv.imread(osp.join(directory, image_tmpl.format(idx)))]
+            return [mmcv.imread(osp.join(directory, image_tmpl.format(idx)))[20:340,160:480,:]]
         elif modality == 'Flow':
             x_imgs = mmcv.imread(
                 osp.join(directory, image_tmpl.format('x', idx)),
@@ -297,6 +298,7 @@ class RawFramesDataset(Dataset):
             pad_shape=pad_shape,
             scale_factor=scale_factor,
             crop_quadruple=crop_quadruple,
+            img_path=record.path,
             flip=flip)
         # [M x C x H x W]
         # M = 1 * N_oversample * N_seg * L

@@ -67,21 +67,25 @@ class SegHead(nn.Module):
         self.out_conv = nn.Conv3d(64, n_classes, kernel_size=1, stride=1)
         self.loss_func = nn.CrossEntropyLoss()
 
-    def forward(self, feat, seg=None):
+    def forward(self, feat, seg_gt=None, input_size=None):
         #assert input_size is not None
-        #size = (seg.shape[3], seg.shape[4])
-        size = self.input_size
+        #size = (seg_gt.shape[3], seg_gt.shape[4])
+        # input_size: tuple of size 2
+        if input_size is not None:
+            size = input_size
+        else:
+            size = self.input_size
         x = self.up1(feat[3], feat[2])
         x = self.up2(x, feat[1])
         x = self.up3(x, feat[0])
         x = self.out_conv(x)
         x = nn.Upsample((x.shape[2],)+size, mode='nearest')(x)
 
-        if seg is not None:
-            seg = F.interpolate(seg.double(), x.shape[2:], mode='nearest')
-            seg = seg.squeeze(1).long()
+        if seg_gt is not None:
+            seg_gt = F.interpolate(seg_gt.double(), x.shape[2:], mode='nearest')
+            seg_gt = seg_gt.squeeze(1).long()
 
-            loss = self.loss_func(x, seg)
+            loss = self.loss_func(x, seg_gt)
             return x, loss
         else:
             return x

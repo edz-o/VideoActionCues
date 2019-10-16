@@ -97,11 +97,11 @@ class TSN3D_bb_mt(nn.Module):
         x = self.backbone(img_group)
         return x
 
-    def forward(self, img_group_0, img_group_seg=None, gt_label=None, test=False):
+    def forward(self, img_group_0, img_meta=None, img_group_seg=None, gt_label=None, test=False, **kwargs):
         if test == False:
             return self.forward_train(img_group_0, img_group_seg=img_group_seg, gt_label=gt_label)
         else:
-            return self.forward_test(img_group_0)
+            return self.forward_test(img_group_0, img_meta=img_meta, **kwargs)
 
     def forward_train(self,
                       img_group_0,
@@ -149,6 +149,8 @@ class TSN3D_bb_mt(nn.Module):
 
     def forward_test(self,
                      img_group_0,
+                     img_meta=None,
+                     output_seg=False,
                      ):
         #assert num_modalities == 1
         img_group = img_group_0
@@ -161,6 +163,8 @@ class TSN3D_bb_mt(nn.Module):
             raise NotImplementedError
         else:
             x = self.extract_feat(img_group)
+            if output_seg:
+                seg_pred = self.seg_head(x, input_size=img_group.shape[-2:])
             x = x[-1]
         if self.with_spatial_temporal_module:
             x = self.spatial_temporal_module(x)
@@ -171,4 +175,7 @@ class TSN3D_bb_mt(nn.Module):
         if self.with_cls_head:
             x = self.cls_head(x)
 
-        return x.cpu().numpy()
+        if output_seg:
+            return x.cpu().numpy(), seg_pred.cpu().numpy(), img_group.cpu().numpy(), img_meta
+        else:
+            return x.cpu().numpy()

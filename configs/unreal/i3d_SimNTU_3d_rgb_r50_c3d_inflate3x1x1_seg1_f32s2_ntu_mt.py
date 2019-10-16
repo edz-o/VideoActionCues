@@ -52,6 +52,7 @@ data_root0 = 'data/unreal/rawframes_train/'
 data_root1 = 'data/nturgbd/rawframes_train/'
 data_root_val = 'data/nturgbd/rawframes_val/'
 data_root_test = 'data/nturgbd/rawframes_val/'
+#data_root_test = 'data/kinetics400/rawframes_val/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
@@ -156,7 +157,7 @@ log_config = dict(
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_SimNTU_3d_rgb_r50_c3d_inflate3x1x1_seg1_f32s2_b8_g8_adv_4680_mt'
+work_dir = './work_dirs/i3d_SimNTU_r50_b6_adv_4680_uda_ntucentercrop'
 load_from = None
 resume_from = None
 

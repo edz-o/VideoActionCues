@@ -1,5 +1,7 @@
 import argparse
+import os
 
+import numpy as np
 import torch
 import mmcv
 from mmcv.runner import load_checkpoint, parallel_test, obj_from_dict, load_checkpoint_adv
@@ -14,14 +16,30 @@ from mmaction.core.evaluation.accuracy import (softmax, top_k_accuracy,
 import pickle
 import pdb
 
-def single_test(model, data_loader):
+
+def single_test(model, data_loader, cfg):
     model.eval()
     results = []
     dataset = data_loader.dataset
     prog_bar = mmcv.ProgressBar(len(dataset))
     for i, data in enumerate(data_loader):
         with torch.no_grad():
-            result = model(return_loss=False, **data)
+            result, seg, img, meta = model(return_loss=False, **data)
+            '''
+            for frame in range(8):
+                for idx_in_batch in range(seg.shape[0]):
+                    seg0 = seg.argmax(1)[idx_in_batch,frame,:,:]
+                    img0 = mmcv.imdenormalize(img[idx_in_batch,:,frame*4,:,:].transpose([1,2,0]),
+                            mean=np.array(cfg.img_norm_cfg.mean).reshape(1,1,3),
+                            std=np.array(cfg.img_norm_cfg.std).reshape(1,1,3),
+                            to_bgr=cfg.img_norm_cfg.to_rgb)
+
+                    out_dir = os.path.join('outputs_ntucentercrop', meta[0]['img_path'], 'setting_%02d'%idx_in_batch)
+                    if not os.path.isdir(out_dir):
+                        os.makedirs(out_dir)
+                    mmcv.imwrite(img0, os.path.join(out_dir, 'img_%05d.png'%(frame)))
+                    mmcv.imwrite(seg0*255, os.path.join(out_dir, 'seg_%05d.png'%(frame)))
+            '''
         results.append(result)
 
         batch_size = data['img_group_0'].data[0].size(0)
@@ -85,7 +103,7 @@ def main():
             num_gpus=1,
             dist=False,
             shuffle=False)
-        outputs = single_test(model, data_loader)
+        outputs = single_test(model, data_loader, cfg)
     else:
         model_args = cfg.model.copy()
         model_args.update(train_cfg=None, test_cfg=cfg.test_cfg)
@@ -123,7 +141,7 @@ def main():
     currentDT = datetime.datetime.now()
 
 
-    with open('/data/yzhang/mmaction/test_result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S"), 'wb' ) as f:
+    with open('mmaction/test_result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S"), 'wb' ) as f:
         pickle.dump([results, gt_labels], f)
     top1, top5 = top_k_accuracy(results, gt_labels, k=(1, 5))
     mean_acc = mean_class_accuracy(results, gt_labels)
