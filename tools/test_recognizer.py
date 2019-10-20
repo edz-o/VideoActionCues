@@ -74,6 +74,7 @@ def main():
             cfg.model, train_cfg=None, test_cfg=cfg.test_cfg)
         load_checkpoint(model, args.checkpoint, strict=True)
         model = MMDataParallel(model, device_ids=[0])
+        a = dataset[1]
 
         data_loader = build_dataloader(
             dataset,

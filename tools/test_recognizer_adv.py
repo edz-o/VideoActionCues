@@ -24,7 +24,8 @@ def single_test(model, data_loader, cfg):
     prog_bar = mmcv.ProgressBar(len(dataset))
     for i, data in enumerate(data_loader):
         with torch.no_grad():
-            result, seg, img, meta = model(return_loss=False, **data)
+            #result, seg, img, meta = model(return_loss=False, **data)
+            result = model(return_loss=False, **data)
             '''
             for frame in range(8):
                 for idx_in_batch in range(seg.shape[0]):
@@ -141,7 +142,7 @@ def main():
     currentDT = datetime.datetime.now()
 
 
-    with open('mmaction/test_result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S"), 'wb' ) as f:
+    with open('test_result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S"), 'wb' ) as f:
         pickle.dump([results, gt_labels], f)
     top1, top5 = top_k_accuracy(results, gt_labels, k=(1, 5))
     mean_acc = mean_class_accuracy(results, gt_labels)

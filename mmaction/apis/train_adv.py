@@ -114,6 +114,8 @@ def _non_dist_train(model, dataset, cfg, validate=False):
             cfg.gpus,
             dist=False)
     ]
+    #a = dataset[0]
+    #pdb.set_trace()
     # put model on gpus
     #model = MMDataParallel(model, device_ids=range(cfg.gpus)).cuda()
     # build runner

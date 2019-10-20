@@ -2,6 +2,7 @@ from .base import BaseRecognizer
 from .. import builder
 from ..registry import RECOGNIZERS
 from mmcv.parallel import MMDataParallel
+from mmcv.runner import load_checkpoint_adv
 import torch.nn as nn
 
 import torch
@@ -18,7 +19,8 @@ class TSN3D_bb_mt(nn.Module):
                  seg_head=None,
                  train_cfg=None,
                  test_cfg=None,
-                 gpus=None):
+                 gpus=None,
+                 weights=None):
 
         super(TSN3D_bb_mt, self).__init__()
         self.backbone = builder.build_backbone(backbone)
@@ -46,7 +48,7 @@ class TSN3D_bb_mt(nn.Module):
         if seg_head is not None:
             self.seg_head = builder.build_head(seg_head)
 
-        self.init_weights()
+        self.init_weights(weights)
         self.train_cfg = train_cfg
         self.test_cfg = test_cfg
 
@@ -70,7 +72,7 @@ class TSN3D_bb_mt(nn.Module):
     def with_seg_head(self):
         return hasattr(self, 'seg_head') and self.cls_head is not None
 
-    def init_weights(self):
+    def init_weights(self, weights=None):
         self.backbone.init_weights()
 
         if self.with_flownet:
@@ -84,6 +86,10 @@ class TSN3D_bb_mt(nn.Module):
 
         if self.with_cls_head:
             self.cls_head.init_weights()
+
+        if weights is not None:
+            load_checkpoint_adv(self, weights, strict=False)
+
 
     def extract_feat_with_flow(self, img_group,
                                trajectory_forward=None,

@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 
 from .transforms import (GroupImageTransform)
 from .utils import to_tensor
+from .kp_utils import load_2d_kps
 import pdb
 
 class RawFramesRecord(object):
@@ -188,10 +189,12 @@ class MTRawFramesDataset(Dataset):
         elif modality == 'Seg':
             r, g, b = 155, 168, 157
             return [MTRawFramesDataset.get_mask(mmcv.imread(osp.join(directory, image_tmpl.format(idx))), [b, g, r])[:,:, np.newaxis].astype(int)]
+        elif modality == 'kp2d':
+            return [load_2d_kps(osp.join(directory, image_tmpl.format(idx)))]
         else:
             raise ValueError(
                 'Not implemented yet; modality should be '
-                '["RGB", "RGBDiff", "Flow"]')
+                '["RGB", "RGBDiff", "Flow", "Seg", "kp2d"]')
 
     def _sample_indices(self, record):
         '''
@@ -270,6 +273,21 @@ class MTRawFramesDataset(Dataset):
                     p += self.new_step
         return images
 
+    def kp2d_transfrom(self, kp2ds, scale_factor, crop_history, flip):
+        '''
+        kp2ds : Nx2 array, N is the number of keypoints
+        scale_factor: float
+        crop_history: [x1, y1, x2, y2] crop is a square
+        flip: bool
+        '''
+        scale_factor2_x = self.input_size[0] / (crop_history[2]-crop_history[0])
+        scale_factor2_y = self.input_size[1] / (crop_history[3]-crop_history[1])
+        scale_factor2 = np.array(scale_factor2_x, scale_factor2_y)
+        kp2ds = (kp2ds*scale_factor - np.array(crop_history[:2]))*scale_factor2
+        if flip:
+            kp2ds[:, 0] = self.input_size[0] - kp2ds[:, 0] - 1
+        return kp2ds
+
     def __getitem__(self, idx):
         record = self.video_infos[idx]
         if self.test_mode:
@@ -330,30 +348,48 @@ class MTRawFramesDataset(Dataset):
                 zip(self.modalities[1:], self.image_tmpls[1:])):
             img_group = self._get_frames(
                 record, image_tmpl, modality, segment_indices, skip_offsets)
+            #pdb.set_trace()
 
-            # apply transforms
-            flip = True if np.random.rand() < self.flip_ratio else False
-            (img_group, img_shape, pad_shape,
-             scale_factor, crop_quadruple) = self.img_group_transform(
-                img_group, img_scale,
-                crop_history=data['img_meta']._data[
-                    'crop_quadruple'],
-                flip=data['img_meta']._data[
-                    'flip'], keep_ratio=self.resize_keep_ratio,
-                div_255=self.div_255,
-                is_flow=True if modality == 'Flow' else False,
-                interpolation='nearest' if modality == 'Seg' else 'bilinear',
-                normalize=False if modality == 'Seg' else True)
 
-            if self.input_format == "NCTHW":
-                # Convert [M x C x H x W] to [M' x C x T x H x W]
-                # M = 1 * N_oversample * N_seg * L
-                # M' = 1 * N_oversample * N_seg, T = L
-                img_group = img_group.reshape(
-                    (-1, self.num_segments,
-                     self.new_length) + img_group.shape[1:])
-                img_group = np.transpose(img_group, (0, 1, 3, 2, 4, 5))
-                img_group = img_group.reshape((-1,) + img_group.shape[2:])
+            if modality == 'kp2d':
+                # apply transforms
+                #flip = True if np.random.rand() < self.flip_ratio else False
+                prev_meta = data['img_meta']._data
+                img_group = [ self.kp2d_transfrom(kp2ds, prev_meta['scale_factor'], prev_meta['crop_quadruple'], prev_meta['flip'])  for kp2ds in img_group]
+                img_group = np.array(img_group)
+                #pdb.set_trace()
+
+                if self.input_format == "NCTHW":
+                    # Convert [M x C x H x W] to [M' x C x T x H x W]
+                    # M = 1 * N_oversample * N_seg * L
+                    # M' = 1 * N_oversample * N_seg, T = L
+                    img_group = img_group.reshape(
+                        (-1, self.num_segments,self.new_length) + img_group.shape[1:])
+                    img_group = img_group.reshape((-1,) + img_group.shape[2:])
+            else:
+                # apply transforms
+                #flip = True if np.random.rand() < self.flip_ratio else False
+                (img_group, img_shape, pad_shape,
+                 scale_factor, crop_quadruple) = self.img_group_transform(
+                    img_group, img_scale,
+                    crop_history=data['img_meta']._data[
+                        'crop_quadruple'],
+                    flip=data['img_meta']._data[
+                        'flip'], keep_ratio=self.resize_keep_ratio,
+                    div_255=self.div_255,
+                    is_flow=True if modality == 'Flow' else False,
+                    interpolation='nearest' if modality == 'Seg' else 'bilinear',
+                    normalize=False if modality == 'Seg' else True)
+
+                if self.input_format == "NCTHW":
+                    # Convert [M x C x H x W] to [M' x C x T x H x W]
+                    # M = 1 * N_oversample * N_seg * L
+                    # M' = 1 * N_oversample * N_seg, T = L
+                    img_group = img_group.reshape(
+                        (-1, self.num_segments,
+                         self.new_length) + img_group.shape[1:])
+                    img_group = np.transpose(img_group, (0, 1, 3, 2, 4, 5))
+                    img_group = img_group.reshape((-1,) + img_group.shape[2:])
 
             data.update({
                 'img_group_{}'.format(i+1):

@@ -388,15 +388,19 @@ def parse_nturgbd_splits(level):
             (train_list_shared_cross_setup, val_list_shared_cross_setup, val_list_shared_cross_setup), )
 
 def parse_unreal_splits(level):
+    splits=['train', 'val']
     kinetics_mapping = json.load(open('data/kinetics400/kinetics_class_mapping.json'))
-    frame_folders = glob.glob(os.path.join('data/unreal/rawframes_train', *(['*']*level)))
-    video_list = []
-    for fd in frame_folders:
-        vid = '/'.join(fd.split('/')[3:])
-        act_cls = fd.split('/')[4]
-        label = kinetics_mapping[act_cls]
-        video_list.append((vid, label))
-    return ((video_list, video_list),)
+    video_lists = []
+    for split in splits:
+        frame_folders = glob.glob(os.path.join('data/unreal/rawframes_{}'.format(split), *(['*']*level)))
+        video_list = []
+        for fd in frame_folders:
+            vid = '/'.join(fd.split('/')[3:])
+            act_cls = fd.split('/')[4]
+            label = kinetics_mapping[act_cls]
+            video_list.append((vid, label))
+        video_lists.append(video_list)
+    return (video_lists,)
 
 
 

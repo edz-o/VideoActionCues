@@ -33,16 +33,18 @@ model = dict(
         dropout_ratio=0.5,
         in_channels=2048,
         num_classes=400),
-    seg_head=dict(
-        type='SegHead',
-        n_classes=2,
-        input_size=224
-        ),
+    #seg_head=dict(
+    #    type='SegHead',
+    #    n_classes=2,
+    #    input_size=224
+    #    ),
     discriminator=dict(
         type='NLayerDiscriminator',
         input_nc=2048,
         lambda_adv_1=0.001
-        ))
+        ),
+    #weights='work_dirs/i3d_SimNTU_r50_b6_adv_two_7696_randfg_uda_ntucentercrop/epoch_45.pth'
+)
 train_cfg = None
 test_cfg = None
 # dataset settings
@@ -51,6 +53,7 @@ dataset_type_eval = 'RawFramesDataset'
 data_root0 = 'data/unreal/rawframes_train/'
 data_root1 = 'data/nturgbd/rawframes_train/'
 data_root_val = 'data/nturgbd/rawframes_val/'
+#data_root_test = 'data/unreal/rawframes_val/'
 data_root_test = 'data/nturgbd/rawframes_val/'
 #data_root_test = 'data/kinetics400/rawframes_val/'
 img_norm_cfg = dict(
@@ -60,7 +63,7 @@ data = dict(
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
-        ann_file0='data/unreal/unreal_train_split_rawframes.txt',
+        ann_file0='data/unreal/unreal_train_split_rawframes_1019.txt',
         ann_file1='data/nturgbd/nturgbd_train_split_cross_setup_rawframes.txt',
         img_prefix0=data_root0,
         img_prefix1=data_root1,
@@ -68,10 +71,10 @@ data = dict(
         input_format="NCTHW",
         num_segments=1,
         new_length=32,
-        new_step=2,
+        new_step=1,
         random_shift=True,
-        modality=['RGB','Seg'],
-        image_tmpl0=['img_{:08d}.jpg', 'seg_{:08d}.png'],
+        modality=['RGB','Seg'], #, 'kp2d'],
+        image_tmpl0=['img_{:08d}.jpg', 'seg_{:08d}.png'],#, 'kp3d_{:08d}.json'],
         image_tmpl1='img_{:05d}.jpg',
         img_scale=256,
         input_size=224,
@@ -109,6 +112,7 @@ data = dict(
         test_mode=False),
     test=dict(
         type=dataset_type_eval,
+        #ann_file='data/unreal/unreal_val_split_rawframes_partial.txt',
         ann_file='data/nturgbd/nturgbd_val_split_cross_setup_rawframes.txt',
         #ann_file='data/kinetics400/kinetics400_val_list_rawframes_ntu.txt',
         img_prefix=data_root_test,
@@ -119,6 +123,7 @@ data = dict(
         new_step=2,
         random_shift=True,
         modality='RGB',
+        #image_tmpl='img_{:08d}.jpg',
         image_tmpl='img_{:05d}.jpg',
         img_scale=256,
         input_size=256,
@@ -157,7 +162,7 @@ log_config = dict(
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_SimNTU_r50_b6_adv_4680_uda_ntucentercrop'
+work_dir = './work_dirs/i3d_SimNTU_r50_b6_adv_two_7696_randfg_uda_ntucentercrop'
 load_from = None
 resume_from = None
 
