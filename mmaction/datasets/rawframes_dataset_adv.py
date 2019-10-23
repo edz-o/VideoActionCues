@@ -23,6 +23,7 @@ class RawFramesDatasetAdv(Dataset):
                  random_shift=True,
                  temporal_jitter=False,
                  modality='RGB',
+                 modality2='RGB',
                  image_tmpl0='img_{}.jpg',
                  image_tmpl1='img_{}.jpg',
                  img_scale=256,
@@ -56,7 +57,7 @@ class RawFramesDatasetAdv(Dataset):
             modality = modality[0]
         self.tgt_data = RawFramesDataset(ann_file1, img_prefix1, img_norm_cfg, num_segments,
                             new_length, new_step, random_shift, temporal_jitter,
-                            modality, image_tmpl1, img_scale, img_scale_file, input_size,
+                            modality2, image_tmpl1, img_scale, img_scale_file, input_size,
                             div_255, size_divisor, proposal_file, num_max_proposals, flip_ratio,
                             resize_keep_ratio, resize_ratio, test_mode, oversample, random_crop,
                             more_fix_crop, multiscale_crop, scales, max_distort, input_format)

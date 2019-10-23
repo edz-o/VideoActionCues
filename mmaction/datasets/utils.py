@@ -388,16 +388,16 @@ def parse_nturgbd_splits(level):
     # generalization setup
     # train/val split have no shared background and actor
     # only one camera viewpoint available in training
-    train_ids = [89, 91, 92, 93, 94, 95, 97, 98, 100, 103]
+    val_scenes = [7, 10, 11, 13, 21, 22, 23, 24, 25]
     train_list_shared_generalization_all = {}
     train_list_shared_generalization = []
     val_list_shared_generalization = []
     not_train_list = []
 
     for vid, label in video_list_shared:
-        if int(vid[1:4]) % 2 == 0 and int(vid[9:12]) in train_ids and int(vid[5:8]) == 1:
+        if int(vid[1:4]) not in val_scenes and int(vid[9:12]) in train_ids and int(vid[5:8]) == 1:
             train_list_shared_generalization.append((vid, label))
-        elif int(vid[1:4]) % 2 == 1 and int(vid[9:12]) not in train_ids:
+        elif int(vid[1:4]) in val_scenes and int(vid[9:12]) not in train_ids:
             val_list_shared_generalization.append((vid, label))
     '''
     for vid, label in video_list_shared:
