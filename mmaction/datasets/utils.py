@@ -13,6 +13,7 @@ import random
 import json
 import pdb
 
+np.random.seed(123)
 
 def to_tensor(data):
     """Convert objects of various python types to :obj:`torch.Tensor`.
@@ -384,8 +385,34 @@ def parse_nturgbd_splits(level):
         else:
             val_list_shared_cross_setup.append((vid, label))
 
+    # generalization setup
+    # train/val split have no shared background and actor
+    # only one camera viewpoint available in training
+    train_ids = [89, 91, 92, 93, 94, 95, 97, 98, 100, 103]
+    train_list_shared_generalization_all = {}
+    train_list_shared_generalization = []
+    val_list_shared_generalization = []
+    not_train_list = []
+
+    for vid, label in video_list_shared:
+        if int(vid[1:4]) % 2 == 0 and int(vid[9:12]) in train_ids and int(vid[5:8]) == 1:
+            train_list_shared_generalization.append((vid, label))
+        elif int(vid[1:4]) % 2 == 1 and int(vid[9:12]) not in train_ids:
+            val_list_shared_generalization.append((vid, label))
+    '''
+    for vid, label in video_list_shared:
+        if int(vid[1:4]) % 2 == 0 and int(vid[9:12]) in train_ids:
+            train_list_shared_generalization_all.setdefault(vid[:4]+vid[8:], []).append((vid, label))
+        elif int(vid[1:4]) % 2 == 1 and int(vid[9:12]) not in train_ids:
+            val_list_shared_generalization.append((vid, label))
+    for k,v in train_list_shared_generalization_all.items():
+        rand_cam = np.random.randint(0,len(v))
+        train_list_shared_generalization.append(v[rand_cam])
+    '''
+
     return ((train_list_shared_cross_subject, val_list_shared_cross_subject, val_list_shared_cross_subject),
-            (train_list_shared_cross_setup, val_list_shared_cross_setup, val_list_shared_cross_setup), )
+            (train_list_shared_cross_setup, val_list_shared_cross_setup, val_list_shared_cross_setup),
+            (train_list_shared_generalization, val_list_shared_generalization, val_list_shared_generalization), )
 
 def parse_unreal_splits(level):
     splits=['train', 'val']

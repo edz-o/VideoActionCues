@@ -131,7 +131,8 @@ class TSN3D_bb_mt(nn.Module):
         if img_group_seg is not None:
             seg_pred, losses_seg = self.seg_head(feat, img_group_seg)
             losses['loss_seg'] = losses_seg
-        feat = feat[-1]
+        if isinstance(feat, (list, tuple)):
+            feat = feat[-1]
         if self.with_spatial_temporal_module:
             feat = self.spatial_temporal_module(feat)
         if self.with_segmental_consensus:
@@ -171,7 +172,8 @@ class TSN3D_bb_mt(nn.Module):
             x = self.extract_feat(img_group)
             if output_seg:
                 seg_pred = self.seg_head(x, input_size=img_group.shape[-2:])
-            x = x[-1]
+            if isinstance(x, (list, tuple)):
+                x = x[-1]
         if self.with_spatial_temporal_module:
             x = self.spatial_temporal_module(x)
         if self.with_segmental_consensus:

@@ -69,6 +69,7 @@ def main():
 
     out_path = args.out_list_path + args.dataset
     if args.dataset == 'nturgbd':
+        '''
         lists = build_split_list(split_tp[0], frame_info, shuffle=args.shuffle)
         filename = '{}_train_split_cross_subject_{}.txt'.format(args.dataset,
                                                       args.format)
@@ -88,6 +89,18 @@ def main():
                                                       args.format)
         with open(osp.join(out_path, filename), 'w') as f:
             f.writelines(lists[0][1])
+        '''
+
+        lists = build_split_list(split_tp[2], frame_info, shuffle=args.shuffle)
+        filename = '{}_train_split_generalization_{}.txt'.format(args.dataset,
+                                                      args.format)
+        with open(osp.join(out_path, filename), 'w') as f:
+            f.writelines(lists[0][0])
+        filename = '{}_val_split_generalization_{}.txt'.format(args.dataset,
+                                                      args.format)
+        with open(osp.join(out_path, filename), 'w') as f:
+            f.writelines(lists[0][1])
+
     elif args.dataset == 'unreal':
         lists = build_split_list(split_tp[0], frame_info, shuffle=args.shuffle)
         if args.subset == 'train':

@@ -76,7 +76,7 @@ class TSN3D_adv_mt(BaseRecognizer):
         # Update generator
         # Src domain
 
-        #feat0, loss_cls0 = self.tsn3d_backbone(img_group0, gt_label=gt_label0) # supervised
+        feat0, loss_cls0 = self.tsn3d_backbone(img_group0, gt_label=gt_label0) # supervised
 
         #feat0, loss_cls0 = self.tsn3d_backbone(img_group0, img_group_seg=seg, gt_label=gt_label0) # supervised multi task
 
@@ -87,25 +87,25 @@ class TSN3D_adv_mt(BaseRecognizer):
         losses = dict()
 
         # Src domain loss
-        #loss_cls0['loss_cls'].mean().backward()
+        loss_cls0['loss_cls'].mean().backward()
 
         #loss_0 = loss_cls0['loss_cls'] + 0.1 * loss_cls0['loss_seg']
         #losses['loss_seg'] = loss_cls0['loss_seg']
         #loss_0.mean().backward()
 
-        #losses['loss_cls0'] = loss_cls0['loss_cls'].mean()
+        losses['loss_cls0'] = loss_cls0['loss_cls'].mean()
 
         # Tgt domain loss
         losses['loss_cls1'] = loss_cls1['loss_cls'].mean()
-        loss_1 = loss_cls1['loss_cls']
-        loss_1.mean().backward()
+        #loss_1 = loss_cls1['loss_cls']
+        #loss_1.mean().backward()
 
 
-        ''' Adversarial training
+        #''' Adversarial training
         outD_1 = self.discriminator(feat1)
         loss_D_1_fake = self.discriminator.module.loss(outD_1, 0)
-        #loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake + loss_cls1['loss_cls']
-        loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake
+        loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake + loss_cls1['loss_cls']
+        #loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake
         loss_1.mean().backward()
         losses['loss_D_1_fake'] = loss_D_1_fake.mean()
 
@@ -123,7 +123,7 @@ class TSN3D_adv_mt(BaseRecognizer):
 
         losses['loss_D_0_real'] = loss_D_0_real.mean()
         losses['loss_D_1_real'] = loss_D_1_real.mean()
-        '''
+        #'''
 
         return losses
 

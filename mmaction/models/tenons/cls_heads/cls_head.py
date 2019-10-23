@@ -41,7 +41,7 @@ class ClsHead(nn.Module):
     def forward(self, x):
         if x.ndimension() == 4:
             x = x.unsqueeze(2)
-        assert x.shape[1] == self.in_channels
+        assert x.shape[1] == self.in_channels, "x.shape[1]: %d, self.in_channels: %d" % (x.shape[1], self.in_channels)
         assert x.shape[2] == self.temporal_feature_size, '{}'.format(x.shape[2])
         assert x.shape[3] == self.spatial_feature_size
         assert x.shape[4] == self.spatial_feature_size

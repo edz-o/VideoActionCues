@@ -168,7 +168,8 @@ class RawFramesDataset(Dataset):
 
     def _load_image(self, directory, image_tmpl, modality, idx):
         if modality in ['RGB', 'RGBDiff']:
-            #return [mmcv.imread(osp.join(directory, image_tmpl.format(idx)))]
+            return [mmcv.imread(osp.join(directory, image_tmpl.format(idx)))]
+        elif modality == 'RGBcrop':
             return [mmcv.imread(osp.join(directory, image_tmpl.format(idx)))[20:340,160:480,:]]
         elif modality == 'Flow':
             x_imgs = mmcv.imread(
