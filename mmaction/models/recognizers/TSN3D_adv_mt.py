@@ -67,7 +67,7 @@ class TSN3D_adv_mt(BaseRecognizer):
                       **kwargs):
         #assert num_modalities == 1, '%s' % num_modalities
         img_group0 = kwargs['img_group_0']
-        #seg = kwargs['img_group_seg']
+        seg = kwargs['img_group_seg']
         img_group1 = kwargs['img_group_1']
 
         # freeze discriminator
@@ -76,9 +76,9 @@ class TSN3D_adv_mt(BaseRecognizer):
         # Update generator
         # Src domain
 
-        feat0, loss_cls0 = self.tsn3d_backbone(img_group0, gt_label=gt_label0) # supervised
+        #feat0, loss_cls0 = self.tsn3d_backbone(img_group0, gt_label=gt_label0) # supervised
 
-        #feat0, loss_cls0 = self.tsn3d_backbone(img_group0, img_group_seg=seg, gt_label=gt_label0) # supervised multi task
+        feat0, loss_cls0 = self.tsn3d_backbone(img_group0, img_group_seg=seg, gt_label=gt_label0) # supervised multi task
 
         # Tgt domain
         feat1, loss_cls1 = self.tsn3d_backbone(img_group1, gt_label=gt_label1) # supervised
@@ -87,11 +87,11 @@ class TSN3D_adv_mt(BaseRecognizer):
         losses = dict()
 
         # Src domain loss
-        loss_cls0['loss_cls'].mean().backward()
+        #loss_cls0['loss_cls'].mean().backward()
 
-        #loss_0 = loss_cls0['loss_cls'] + 0.1 * loss_cls0['loss_seg']
-        #losses['loss_seg'] = loss_cls0['loss_seg']
-        #loss_0.mean().backward()
+        loss_0 = loss_cls0['loss_cls'] + 0.1 * loss_cls0['loss_seg']
+        losses['loss_seg'] = loss_cls0['loss_seg']
+        loss_0.mean().backward()
 
         losses['loss_cls0'] = loss_cls0['loss_cls'].mean()
 

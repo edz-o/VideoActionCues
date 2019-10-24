@@ -24,6 +24,15 @@ class TSN3D_bb_mt(nn.Module):
 
         super(TSN3D_bb_mt, self).__init__()
         self.backbone = builder.build_backbone(backbone)
+        def get_features(m, i, o):
+            #print(o.shape)
+            #print(o.get_device())
+            #feats.append(o)
+            m.register_buffer('layer_output', o)
+        h1 = self.backbone.features[2].register_forward_hook(get_features)
+        h2 = self.backbone.features[6].register_forward_hook(get_features)
+        h3 = self.backbone.features[12].register_forward_hook(get_features)
+        h4 = self.backbone.features[15].register_forward_hook(get_features)
 
         if flownet is not None:
             self.flownet = builder.build_flownet(flownet)
@@ -99,6 +108,29 @@ class TSN3D_bb_mt(nn.Module):
                           trajectory_backward=trajectory_backward)
         return x
 
+    def extract_feat_inception(self, img_group):
+        feats = []
+        #def get_features(m, i, o):
+        #    #print(o.shape)
+        #    print(o.get_device())
+        #    feats.append(o)
+        #h1 = self.backbone.features[2].register_forward_hook(get_features)
+        #h2 = self.backbone.features[6].register_forward_hook(get_features)
+        #h3 = self.backbone.features[12].register_forward_hook(get_features)
+        #h4 = self.backbone.features[15].register_forward_hook(get_features)
+        #h1.remove()
+        #h2.remove()
+        #h3.remove()
+        #h4.remove()
+        x = self.backbone(img_group)
+        feats = [   self.backbone.features[2].layer_output,
+                    self.backbone.features[6].layer_output,
+                    self.backbone.features[12].layer_output,
+                    self.backbone.features[15].layer_output,
+                ]
+        return feats
+
+
     def extract_feat(self, img_group):
         x = self.backbone(img_group)
         return x
@@ -126,7 +158,8 @@ class TSN3D_bb_mt(nn.Module):
         if self.with_flownet:
             raise NotImplementedError
         else:
-            feat = self.extract_feat(img_group)
+            #feat = self.extract_feat(img_group)
+            feat = self.extract_feat_inception(img_group)
 
         if img_group_seg is not None:
             seg_pred, losses_seg = self.seg_head(feat, img_group_seg)

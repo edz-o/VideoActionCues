@@ -102,9 +102,9 @@ class SegHeadInception(nn.Module):
         if isinstance(input_size, int):
             input_size = (input_size, input_size)
         self.input_size = input_size
-        self.up1 = up(3072, 256, scale_factor=(1,2,2))
-        self.up2 = up(768, 64, scale_factor=(1,2,2))
-        self.up3 = up(320, 64, scale_factor=(2,2,2))
+        self.up1 = up(1856, 256, scale_factor=(1,2,2))
+        self.up2 = up(736, 64, scale_factor=(2,2,2))
+        self.up3 = up(128, 64, scale_factor=(1,2,2))
         self.out_conv = nn.Conv3d(64, n_classes, kernel_size=1, stride=1)
         self.loss_func = nn.CrossEntropyLoss()
 

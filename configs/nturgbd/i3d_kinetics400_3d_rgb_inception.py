@@ -115,7 +115,7 @@ optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 # learning policy
 lr_config = dict(
     policy='step',
-    step=[30, 80])
+    step=[60, 100])
 checkpoint_config = dict(interval=1)
 # workflow = [('train', 5), ('val', 1)]
 workflow = [('train', 1)]
@@ -124,14 +124,14 @@ log_config = dict(
     interval=20,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
+        dict(type='TensorboardLoggerHook')
     ])
 # yapf:enable
 # runtime settings
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_rgb_inception_ntu_generalization_cam1_indoor2outdoor'
+work_dir = './work_dirs/i3d_rgb_inception_ntu_generalization_cam1_indoor2outdoor_0001'
 load_from = None
 resume_from = None
 

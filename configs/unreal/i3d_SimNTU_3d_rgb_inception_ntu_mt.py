@@ -29,11 +29,11 @@ model = dict(
         lambda_adv_1=0.001
         ),
     bb_weights='modelzoo/inception_i3d_yi_imagenet_inflated.pth',
-    #seg_head=dict(
-    #    type='SegHead',
-    #    n_classes=2,
-    #    input_size=224
-    #    ),
+    seg_head=dict(
+        type='SegHeadInception',
+        n_classes=2,
+        input_size=224
+        ),
 )
 train_cfg = None
 test_cfg = None
@@ -64,7 +64,7 @@ data = dict(
         new_step=1,
         random_shift=True,
         modality=['RGB','Seg'], #, 'kp2d'],
-        modality2=['RGBcrop']
+        modality2=['RGBcrop'],
         image_tmpl0=['img_{:08d}.jpg', 'seg_{:08d}.png'],#, 'kp3d_{:08d}.json'],
         image_tmpl1='img_{:05d}.jpg',
         img_scale=256,
@@ -154,7 +154,7 @@ log_config = dict(
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_SimNTU_r50_b6_adv_9555_randfg_sda_ntucentercrop'
+work_dir = './work_dirs/i3d_SimNTU_inception_b6_adv_9555_randfg_seg_sda_ntucentercrop_generalization'
 load_from = None
 resume_from = None
 
