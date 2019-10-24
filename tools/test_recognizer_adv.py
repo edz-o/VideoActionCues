@@ -14,6 +14,7 @@ from mmaction.core.evaluation.accuracy import (softmax, top_k_accuracy,
                                                mean_class_accuracy)
 
 import pickle
+import os.path as osp
 import pdb
 
 
@@ -142,7 +143,7 @@ def main():
     currentDT = datetime.datetime.now()
 
 
-    with open('test_result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S"), 'wb' ) as f:
+    with open(osp.join(args.checkpoint + '.result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S")), 'wb' ) as f:
         pickle.dump([results, gt_labels], f)
     top1, top5 = top_k_accuracy(results, gt_labels, k=(1, 5))
     mean_acc = mean_class_accuracy(results, gt_labels)
