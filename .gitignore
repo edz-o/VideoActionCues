@@ -105,7 +105,14 @@ venv.bak/
 
 # cython generated cpp
 mmaction/version.py
-data
+data/*
+!data/nturgbd
+data/nturgbd/*
+!data/nturgbd/NTU_RGBD_all.json
+!data/nturgbd/kinetics_ntu_mapping.csv
+!data/kinetics400
+data/kinetics400/*
+!data/kinetics400/kinetics_class_mapping.json
 .vscode
 .idea
 
