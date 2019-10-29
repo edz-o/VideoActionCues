@@ -1,7 +1,7 @@
 # Installation
 
 ```shell
-git clone --recursive https://github.com/open-mmlab/mmaction.git
+git clone --recursive https://github.com/edz-o/VideoActionCues.git
 ```
 
 ## Requirements
