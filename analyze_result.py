@@ -6,7 +6,7 @@ import sys
 result = pickle.load(open(sys.argv[1], 'rb'))
 pred = [res.argmax() for res in result[0] ]
 cfm = confusion_matrix(result[1], pred, labels=list(range(400)))
-kinetics_mapping = json.load(open('/data/yzhang/mmaction/data/kinetics400/kinetics_class_mapping.json'))
+kinetics_mapping = json.load(open('data/kinetics400/kinetics_class_mapping.json'))
 kinetics_mapping_reverse = { v:k for k, v in kinetics_mapping.items()}
 labels = [kinetics_mapping_reverse[i] for i in range(400)]
 
