@@ -33,8 +33,10 @@ def parse_losses(losses):
     return loss, log_vars
 
 
-def batch_processor(model, data, train_mode):
-    losses = model.forward_train(**data)
+def batch_processor(model, data, train_mode, **kwargs):
+    epoch = kwargs['epoch']
+    seg_lambda = 0.2 * (0.95 ** epoch)
+    losses = model.forward_train(seg_lambda=seg_lambda, **data)
     loss, log_vars = parse_losses(losses)
 
     outputs = dict(

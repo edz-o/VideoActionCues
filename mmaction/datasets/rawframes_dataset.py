@@ -291,7 +291,8 @@ class RawFramesDataset(Dataset):
             crop_history=None,
             flip=flip, keep_ratio=self.resize_keep_ratio,
             div_255=self.div_255,
-             is_flow=True if modality == 'Flow' else False)
+             is_flow=True if modality == 'Flow' else False,
+             more_aug=True)
         ori_shape = (256, 340, 3)
         img_meta = dict(
             ori_shape=ori_shape,

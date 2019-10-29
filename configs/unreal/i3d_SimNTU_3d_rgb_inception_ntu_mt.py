@@ -43,13 +43,13 @@ dataset_type_eval = 'RawFramesDataset'
 data_root0 = 'data/unreal/rawframes_train/'
 data_root1 = 'data/nturgbd/rawframes_train/'
 data_root_val = 'data/nturgbd/rawframes_val/'
-#data_root_test = 'data/unreal/rawframes_val/'
+#data_root_test = 'data/unreal/rawframes_val_1008/'
 data_root_test = 'data/nturgbd/rawframes_val/'
 #data_root_test = 'data/kinetics400/rawframes_val/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
-    videos_per_gpu=6,
+    videos_per_gpu=4,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
@@ -103,7 +103,7 @@ data = dict(
         test_mode=False),
     test=dict(
         type=dataset_type_eval,
-        #ann_file='data/unreal/unreal_val_split_rawframes_partial.txt',
+        #ann_file='data/unreal/unreal1008_val_split_rawframes_partial.txt',
         ann_file='data/nturgbd/nturgbd_val_split_generalization_rawframes.txt',
         #ann_file='data/kinetics400/kinetics400_val_list_rawframes_ntu.txt',
         img_prefix=data_root_test,
@@ -151,10 +151,11 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 100
+total_epochs = 80
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_SimNTU_inception_b6_adv_9555_randfg_seg_sda_ntucentercrop_generalization'
+#work_dir = './work_dirs/i3d_SimNTU_inception_b6_adv_9555_randfg_seg_sda_ntucentercrop_generalization'
+work_dir = './work_dirs/i3d_unreal_inception_b6_adv_9375_randfg_seg'
 load_from = None
 resume_from = None
 

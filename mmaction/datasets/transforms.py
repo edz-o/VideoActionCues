@@ -1,6 +1,9 @@
 import mmcv
 import numpy as np
 import random
+import imgaug as ia
+import imgaug.augmenters as iaa
+
 import pdb
 
 __all__ = ['GroupImageTransform', 'ImageTransform', 'BboxTransform']
@@ -238,6 +241,7 @@ class GroupImageTransform(object):
         self.size_divisor = size_divisor
         self.crop_size = crop_size
 
+
         # croping parameters
         if crop_size is not None:
             if oversample == 'three_crop':
@@ -257,7 +261,7 @@ class GroupImageTransform(object):
             self.op_crop = None
 
     def __call__(self, img_group, scale, crop_history=None, flip=False,
-                 keep_ratio=True, div_255=False, is_flow=False, interpolation='bilinear', normalize=True):
+                 keep_ratio=True, div_255=False, is_flow=False, interpolation='bilinear', normalize=True, more_aug=False):
         # 1. rescale
         if keep_ratio:
             tuple_list = [mmcv.imrescale(
@@ -285,6 +289,14 @@ class GroupImageTransform(object):
             crop_quadruple = None
 
         img_shape = img_group[0].shape
+
+        if more_aug:
+            seq = iaa.Sequential([
+                iaa.GaussianBlur(sigma=np.random.uniform(0, 5)),
+                iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05*255), per_channel=0.5),
+                ])
+            img_group = seq(images=np.array(img_group))
+
         # 3. flip
         if flip:
             img_group = [mmcv.imflip(img) for img in img_group]

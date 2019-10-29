@@ -202,7 +202,8 @@ class TSN3D_bb_mt(nn.Module):
         if self.with_flownet:
             raise NotImplementedError
         else:
-            x = self.extract_feat(img_group)
+            #x = self.extract_feat(img_group)
+            x = self.extract_feat_inception(img_group)
             if output_seg:
                 seg_pred = self.seg_head(x, input_size=img_group.shape[-2:])
             if isinstance(x, (list, tuple)):

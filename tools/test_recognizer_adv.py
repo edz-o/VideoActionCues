@@ -25,9 +25,9 @@ def single_test(model, data_loader, cfg):
     prog_bar = mmcv.ProgressBar(len(dataset))
     for i, data in enumerate(data_loader):
         with torch.no_grad():
-            #result, seg, img, meta = model(return_loss=False, **data)
-            result = model(return_loss=False, **data)
-            '''
+            result, seg, img, meta = model(return_loss=False, **data)
+            #result = model(return_loss=False, **data)
+            #'''
             for frame in range(8):
                 for idx_in_batch in range(seg.shape[0]):
                     seg0 = seg.argmax(1)[idx_in_batch,frame,:,:]
@@ -36,12 +36,12 @@ def single_test(model, data_loader, cfg):
                             std=np.array(cfg.img_norm_cfg.std).reshape(1,1,3),
                             to_bgr=cfg.img_norm_cfg.to_rgb)
 
-                    out_dir = os.path.join('outputs_ntucentercrop', meta[0]['img_path'], 'setting_%02d'%idx_in_batch)
+                    out_dir = os.path.join('outputs_ntucentercrop_1028', meta[0]['img_path'], 'setting_%02d'%idx_in_batch)
                     if not os.path.isdir(out_dir):
                         os.makedirs(out_dir)
                     mmcv.imwrite(img0, os.path.join(out_dir, 'img_%05d.png'%(frame)))
                     mmcv.imwrite(seg0*255, os.path.join(out_dir, 'seg_%05d.png'%(frame)))
-            '''
+            #'''
         results.append(result)
 
         batch_size = data['img_group_0'].data[0].size(0)

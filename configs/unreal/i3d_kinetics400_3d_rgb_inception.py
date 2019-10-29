@@ -65,7 +65,7 @@ data = dict(
     val=dict(
         type=dataset_type,
         #ann_file='data/kinetics400/kinetics400_val_list_rawframes.txt',
-        ann_file='data/nturgbd/nturgbd_val_split_generalization_rawframes.txt',
+        ann_file='data/nturgbd/nturgbd_val_split_generalization_rawframes_partial.txt',
         img_prefix=data_root_val,
         img_norm_cfg=img_norm_cfg,
         input_format="NCTHW",
@@ -132,7 +132,7 @@ log_config = dict(
 total_epochs = 100
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/i3d_rgb_inception_ntu_generalization_cam1_indoor2outdoor'
+work_dir = './work_dirs/i3d_rgb_inception_9375_randfg_blur'
 load_from = None
 resume_from = None
 

@@ -64,6 +64,7 @@ class TSN3D_adv_mt(BaseRecognizer):
                       img_meta,
                       gt_label0,
                       gt_label1,
+                      seg_lambda=0.1,
                       **kwargs):
         #assert num_modalities == 1, '%s' % num_modalities
         img_group0 = kwargs['img_group_0']
@@ -81,7 +82,7 @@ class TSN3D_adv_mt(BaseRecognizer):
         feat0, loss_cls0 = self.tsn3d_backbone(img_group0, img_group_seg=seg, gt_label=gt_label0) # supervised multi task
 
         # Tgt domain
-        feat1, loss_cls1 = self.tsn3d_backbone(img_group1, gt_label=gt_label1) # supervised
+        #feat1, loss_cls1 = self.tsn3d_backbone(img_group1, gt_label=gt_label1) # supervised
         #feat1 = self.tsn3d_backbone(img_group1) # unsupervised
 
         losses = dict()
@@ -89,19 +90,19 @@ class TSN3D_adv_mt(BaseRecognizer):
         # Src domain loss
         #loss_cls0['loss_cls'].mean().backward()
 
-        loss_0 = loss_cls0['loss_cls'] + 0.1 * loss_cls0['loss_seg']
+        loss_0 = loss_cls0['loss_cls'] + seg_lambda * loss_cls0['loss_seg']
         losses['loss_seg'] = loss_cls0['loss_seg']
         loss_0.mean().backward()
 
         losses['loss_cls0'] = loss_cls0['loss_cls'].mean()
 
         # Tgt domain loss
-        losses['loss_cls1'] = loss_cls1['loss_cls'].mean()
+        #losses['loss_cls1'] = loss_cls1['loss_cls'].mean()
         #loss_1 = loss_cls1['loss_cls']
         #loss_1.mean().backward()
 
 
-        #''' Adversarial training
+        ''' Adversarial training
         outD_1 = self.discriminator(feat1)
         loss_D_1_fake = self.discriminator.module.loss(outD_1, 0)
         loss_1 = self.discriminator.module.lambda_adv_1 * loss_D_1_fake + loss_cls1['loss_cls']
@@ -123,7 +124,7 @@ class TSN3D_adv_mt(BaseRecognizer):
 
         losses['loss_D_0_real'] = loss_D_0_real.mean()
         losses['loss_D_1_real'] = loss_D_1_real.mean()
-        #'''
+        '''
 
         return losses
 
@@ -134,7 +135,7 @@ class TSN3D_adv_mt(BaseRecognizer):
         #assert num_modalities == 1
         img_group = kwargs['img_group_0']
 
-        return self.tsn3d_backbone(img_group, img_meta, test=True, output_seg=False)
+        return self.tsn3d_backbone(img_group, img_meta, test=True, output_seg=True)
 
     def init_weights(self, weights=None):
         if weights is not None:
