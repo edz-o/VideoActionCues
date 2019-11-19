@@ -28,8 +28,8 @@ train_cfg = None
 test_cfg = None
 # dataset settings
 dataset_type = 'RawFramesDataset'
-data_root = 'data/nturgbd/rawframes/'
-data_root_val = 'data/nturgbd/rawframes/'
+data_root = 'data/nturgbd/rawframes_val/'
+data_root_val = 'data/nturgbd/rawframes_val/'
 img_norm_cfg = dict(
     mean=[127.5, 127.5, 127.5], std=[127.5, 127.5, 127.5], to_rgb=True)
 data = dict(
