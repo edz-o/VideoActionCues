@@ -3,6 +3,7 @@ import numpy as np
 import os.path as osp
 from mmcv.parallel import DataContainer as DC
 from torch.utils.data import Dataset
+from read_ntu_skeleton import read_ntu_skeleton_file, Pose, make_gaussian
 
 from .transforms import (GroupImageTransform)
 from .utils import to_tensor
@@ -184,6 +185,8 @@ class RawFramesDataset(Dataset):
                 'Not implemented yet; modality should be '
                 '["RGB", "RGBDiff", "Flow"]')
 
+
+
     def _sample_indices(self, record):
         '''
 
@@ -245,17 +248,41 @@ class RawFramesDataset(Dataset):
 
     def _get_frames(self, record, image_tmpl, modality, indices, skip_offsets):
         images = list()
+        directory = osp.join(self.img_prefix, record.path)
+        directory = directory.replace('rawframes', 'skeletons').strip('_rgb')
+        skeleton = read_ntu_skeleton_file(directory + '.skeleton')
         for seg_ind in indices:
             p = int(seg_ind)
             for i, ind in enumerate(range(0, self.old_length, self.new_step)):
                 if p + skip_offsets[i] <= record.num_frames:
-                    seg_imgs = self._load_image(osp.join(
-                        self.img_prefix, record.path),
-                        image_tmpl, modality, p + skip_offsets[i])
+                    idx = p + skip_offsets[i]
+
+                    #seg_imgs = self._load_image(osp.join(
+                    #    self.img_prefix, record.path),
+                    #    image_tmpl, modality, p + skip_offsets[i])
                 else:
-                    seg_imgs = self._load_image(
-                        osp.join(self.img_prefix, record.path),
-                        image_tmpl, modality, p)
+                    idx = p
+                    #seg_imgs = self._load_image(
+                    #    osp.join(self.img_prefix, record.path),
+                    #    image_tmpl, modality, p)
+                if idx >= len(skeleton):
+                    idx = len(skeleton) - 1
+                h = 360
+                w = 640
+                if len(skeleton[idx]) < 1:
+                    gt = np.zeros(shape=(h, w), dtype=np.float64)
+                else:
+                    pose = Pose(skeleton[idx][0])
+                    gt = np.zeros(shape=(h, w), dtype=np.float64)
+                    #print(len(pose.info['joints']))
+                    for joint in pose.info['joints']:
+                        center = (int(joint.colorY/1080*h), int(joint.colorX/1920*w))
+                        if center[0] < h and center[1] < w:
+                            gt[center[0], center[1]] = 255.0
+                        #gt = make_gaussian((h, w), center=center, sigma=3)
+                        #gt = np.maximum(gt, make_gaussian((h, w), center=center, sigma=3)) * 255.0
+                seg_imgs = [np.repeat(np.expand_dims(gt, 2),3, 2)]
+                    
                 images.extend(seg_imgs)
                 if p + self.new_step < record.num_frames:
                     p += self.new_step

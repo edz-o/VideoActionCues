@@ -1,12 +1,7 @@
 import json
 import os
 import os.path as osp
-import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-from scipy import stats
-from PIL import Image
-from tqdm import tqdm
 
 class Joint(object):
     def __init__(self, jointinfo):
@@ -71,15 +66,32 @@ def read_ntu_skeleton_file(filename):
             body_info.append(info)
     return body_info
 
-frame = 1
-body_id = 0
-img = cv2.imread('data/nturgbd/rawframes/S001C001P001R001A058_rgb/img_%05d.jpg' % frame)[:,:,::-1]
-skeleton = read_ntu_skeleton_file('data/nturgbd/skeletons/S001C001P001R001A058.skeleton')
+def make_gaussian(size, sigma=10, center=None, d_type=np.float64):
+    """ Make a square gaussian kernel.
+    size: is the dimensions of the output gaussian
+    sigma: is full-width-half-maximum, which
+    can be thought of as an effective radius.
+    """
+
+    x = np.arange(0, size[1], 1, float)
+    y = np.arange(0, size[0], 1, float)
+    y = y[:, np.newaxis]
+
+    if center is None:
+        x0 = y0 = size[0] // 2
+    else:
+        x0 = center[0]
+        y0 = center[1]
+
+    return np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2).astype(d_type)
+
+"""
+skeleton = read_ntu_skeleton_file('data/nturgbd/skeletons_val/S001C001P001R001A007.skeleton')
 img_copy = img.copy()
 pose = Pose(skeleton[frame][body_id])
 for joint in pose.info['joints']:
-    cv2.circle(img_copy, (int(joint.colorX/1920*640), int(joint.colorY/1080*360)), radius=2, color=(0,255,0), thickness=-1)
-bbox = pose.get_bbox(640, 360)
-img_copy = cv2.rectangle(img_copy, tuple(bbox[:2]), tuple(bbox[2:]), color=(0,255,0), thickness=2)
-plt.imshow(img_copy)
-plt.show()
+    import pdb
+    pdb.set_trace()
+    #cv2.circle(img_copy, (int(joint.colorX/1920*640), int(joint.colorY/1080*360)), radius=2, color=(0,255,0), thickness=-1)
+
+"""
