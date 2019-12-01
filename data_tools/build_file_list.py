@@ -24,7 +24,8 @@ def parse_args():
                         choices=['train', 'val', 'test'])
     parser.add_argument('--level', type=int, default=2)
     parser.add_argument('--format', type=str,
-                        default='rawframes', choices=['rawframes', 'videos'])
+                        default='rawframes', choices=['rawframes', 'videos',
+                        'denseflow'])
     parser.add_argument('--out_list_path', type=str, default='data/')
     parser.add_argument('--shuffle', action='store_true', default=False)
     args = parser.parse_args()
@@ -42,7 +43,7 @@ def main():
     else:
         def key_func(x): return x.split('/')[-1]
 
-    if args.format == 'rawframes':
+    if args.format == 'rawframes' or 'denseflow':
         frame_info = parse_directory(args.frame_path,
                                      key_func=key_func,
                                      rgb_prefix=args.rgb_prefix,
