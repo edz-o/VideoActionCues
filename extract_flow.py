@@ -19,8 +19,8 @@ def extract_flow(frame_list, frame_names, output_dir):
         hsv[...,2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
         rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
-        frame_name = os.path.splitext(frame_name)[0]
-        cv2.imwrite(os.path.join(output_dir, frame_name + '_opticalhsv.png'), rgb)
+        #frame_name = os.path.splitext(frame_name)[0]
+        cv2.imwrite(os.path.join(output_dir, frame_name), rgb)
         prvs = nxt
 
 
@@ -34,8 +34,8 @@ def main():
         if '_rgb' not in dirpath and len(image_names) < 1:
             continue
 
-        video_name = os.path.split(dirpath)[-1]
-        video_output_dir = os.path.join(output_dir, video_name)
+        video_name = os.path.split(dirpath)[-1].split('_')[0]
+        video_output_dir = os.path.join(output_dir, video_name + '_flow')
         try: 
             os.mkdir(video_output_dir)
         except OSError:
