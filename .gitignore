@@ -119,3 +119,4 @@ data/kinetics400/*
 # PyTorch Models and Logs
 *.pth
 *.pkl
+!results/*
