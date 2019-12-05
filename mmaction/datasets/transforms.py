@@ -289,6 +289,7 @@ class GroupImageTransform(object):
             crop_quadruple = None
 
         img_shape = img_group[0].shape
+        
 
         if more_aug:
             seq = iaa.Sequential([
@@ -307,10 +308,14 @@ class GroupImageTransform(object):
         if div_255:
             img_group = [mmcv.imnormalize(img, 0, 255, False)
                          for img in img_group]
+
         # 4. normalize
         if normalize:
-            img_group = [mmcv.imnormalize(
-                img, self.mean, self.std, self.to_rgb) for img in img_group]
+            #img_group = [mmcv.imnormalize(
+            #    img, self.mean, self.std, self.to_rgb) for img in img_group]
+            img_group = [np.concatenate((mmcv.imnormalize(img[:,:,:3], self.mean, self.std, self.to_rgb),
+                img[:,:,3:4]), axis=2) for img in img_group]
+        
         # 5. pad
         if self.size_divisor is not None:
             img_group = [mmcv.impad_to_multiple(

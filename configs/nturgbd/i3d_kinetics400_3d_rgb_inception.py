@@ -126,7 +126,7 @@ log_config = dict(
 total_epochs = 130
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/keypoints_only'
+work_dir = './work_dirs/rgb+kp_no_first_init'
 load_from = None
 resume_from = None
 

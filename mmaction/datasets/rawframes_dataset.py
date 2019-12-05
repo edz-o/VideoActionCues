@@ -257,14 +257,14 @@ class RawFramesDataset(Dataset):
                 if p + skip_offsets[i] <= record.num_frames:
                     idx = p + skip_offsets[i]
 
-                    #seg_imgs = self._load_image(osp.join(
-                    #    self.img_prefix, record.path),
-                    #    image_tmpl, modality, p + skip_offsets[i])
+                    seg_imgs = self._load_image(osp.join(
+                        self.img_prefix, record.path),
+                        image_tmpl, modality, p + skip_offsets[i])
                 else:
                     idx = p
-                    #seg_imgs = self._load_image(
-                    #    osp.join(self.img_prefix, record.path),
-                    #    image_tmpl, modality, p)
+                    seg_imgs = self._load_image(
+                        osp.join(self.img_prefix, record.path),
+                        image_tmpl, modality, p)
                 if idx >= len(skeleton):
                     idx = len(skeleton) - 1
                 h = 360
@@ -281,8 +281,10 @@ class RawFramesDataset(Dataset):
                             gt[center[0], center[1]] = 255.0
                         #gt = make_gaussian((h, w), center=center, sigma=3)
                         #gt = np.maximum(gt, make_gaussian((h, w), center=center, sigma=3)) * 255.0
-                seg_imgs = [np.repeat(np.expand_dims(gt, 2),3, 2)]
-                    
+                rgb = seg_imgs[0]
+                #seg_imgs = [np.repeat(np.expand_dims(gt, 2),3, 2)]
+                seg_imgs = [np.concatenate((rgb, np.expand_dims(gt, 2)), axis=2)]
+                #print(seg_imgs[0].shape)
                 images.extend(seg_imgs)
                 if p + self.new_step < record.num_frames:
                     p += self.new_step
@@ -305,7 +307,7 @@ class RawFramesDataset(Dataset):
         image_tmpl = self.image_tmpls[0]
         img_group = self._get_frames(
             record, image_tmpl, modality, segment_indices, skip_offsets)
-
+        
         flip = True if np.random.rand() < self.flip_ratio else False
         if (self.img_scale_dict is not None
                 and record.path in self.img_scale_dict):
@@ -319,6 +321,7 @@ class RawFramesDataset(Dataset):
             flip=flip, keep_ratio=self.resize_keep_ratio,
             div_255=self.div_255,
              is_flow=True if modality == 'Flow' else False)
+        
         ori_shape = (256, 340, 3)
         img_meta = dict(
             ori_shape=ori_shape,
@@ -343,7 +346,7 @@ class RawFramesDataset(Dataset):
             img_group_0=DC(to_tensor(img_group), stack=True, pad_dims=2),
             img_meta=DC(img_meta, cpu_only=True)
         ))
-
+    
         # handle the rest modalities using the same
         for i, (modality, image_tmpl) in enumerate(
                 zip(self.modalities[1:], self.image_tmpls[1:])):

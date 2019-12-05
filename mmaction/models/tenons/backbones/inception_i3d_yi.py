@@ -289,7 +289,7 @@ class Mixed_5c(nn.Module):
 @BACKBONES.register_module
 class I3D(nn.Module):
 
-    def __init__(self, pretrained=None, bn_eval=True, bn_frozen=False, partial_bn=False, input_channel=3, phase='train'):
+    def __init__(self, pretrained=None, bn_eval=True, bn_frozen=False, partial_bn=False, input_channel=4, phase='train'):
         super(I3D, self).__init__()
         self.phase = phase
         self.loss = None
@@ -322,16 +322,47 @@ class I3D(nn.Module):
         if partial_bn:
             self.partialBN(True)
 
+        self.is_inited = False
+
     def forward(self, x):
+        #if self.is_inited is False:
+        #    #self.init_weights()
+        #    self.is_inited = True
+        x = x.float()
         assert x.shape[2] == 32, '{}'.format(x.shape[2])
         feature = self.features(x)
 
         return feature
 
     def init_weights(self):
+        #self.pretrained = 'modelzoo/inception_i3d_yi_imagenet_inflated.pth'
         if isinstance(self.pretrained, str):
             logger = logging.getLogger()
-            load_checkpoint(self, self.pretrained, strict=False, logger=logger)
+            for m in self.modules():
+                if isinstance(m, nn.Conv3d):
+                    kaiming_init(m)
+                elif isinstance(m, nn.BatchNorm3d):
+                    constant_init(m, 1)
+            #load_checkpoint(self, self.pretrained, strict=False, logger=logger)
+            load_dict = torch.load(self.pretrained)['state_dict']
+            model_dict = self.state_dict()
+            update_dict = {}
+            for k,v in model_dict.items():
+                update_dict[k] = v
+            for key in load_dict:
+                model_key = key.replace('backbone.', '')
+                if 'features.0.conv.weight' in key:
+                    model_dict[model_key][:,:3,:,:,:] = load_dict[key]
+                    model_dict[model_key][:,3,:,:,:] = load_dict[key][:,0,:,:,:]
+                    model_dict[model_key] = model_dict[model_key] * 3 / 4
+                    print("loaded " + model_key)
+                else:
+                    if model_key in model_dict:
+                        model_dict[model_key] = load_dict[key]
+                        print("loaded " + model_key)
+            self.load_state_dict(model_dict)
+
+
         elif self.pretrained is None:
             for m in self.modules():
                 if isinstance(m, nn.Conv3d):

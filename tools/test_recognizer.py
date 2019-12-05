@@ -120,10 +120,12 @@ def main():
     import datetime
 
     currentDT = datetime.datetime.now()
-
+    
+    with open('data/nturgbd/nturgbd_val_split_generalization_rawframes.txt') as f:
+        video_names = [l.strip().split(' ')[0] for l in f.readlines()]
 
     with open(osp.join(args.checkpoint + '.result_%s.pkl' % currentDT.strftime("%Y-%m-%d_%H:%M:%S")), 'wb' ) as f:
-        pickle.dump([results, gt_labels], f)
+        pickle.dump([results, gt_labels, video_names], f)
     top1, top5 = top_k_accuracy(results, gt_labels, k=(1, 5))
     mean_acc = mean_class_accuracy(results, gt_labels)
     print("Mean Class Accuracy = {:.02f}".format(mean_acc * 100))
