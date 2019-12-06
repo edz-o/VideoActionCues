@@ -2,7 +2,7 @@
 
 ## Introduction
 This is the code repository of the final project for the 19Fall Computer Vision Course (EN.601.661) at JHU. 
-The team members are Heather Han, Zili Huang, Yingda Xia and Yi Zhang.
+The team members are Heather Han, Zili Huang, Yingda Xia and Yi Zhang. The code is based on [MMAction](https://github.com/open-mmlab/mmaction).
 
 ## Installation
 Please refer to [INSTALL.md](https://github.com/open-mmlab/mmaction/blob/master/INSTALL.md) for installation.
